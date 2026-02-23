@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Projection Planner: Library</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "bg":        "#090d12",
+        "s1":        "#0f1823",
+        "s2":        "#162030",
+        "s3":        "#1e2d3f",
+        "primary":   "#f5a623",
+        "secondary": "#1e8eb4",
+      },
+      fontFamily: {
+        "display": ["'Exo 2'", "sans-serif"],
+        "mono":    ["'Share Tech Mono'", "monospace"],
+      },
+      borderRadius: {
+        "DEFAULT": "0.25rem",
+        "md":  "0.375rem",
+        "lg":  "0.5rem",
+        "xl":  "0.75rem",
+        "2xl": "1rem",
+        "full":"9999px",
+      },
+    },
+  },
+}
+</script>
+<style>
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  body { min-height: max(884px, 100dvh); }
+
+  .readout { font-family: 'Share Tech Mono', monospace; letter-spacing: 0.05em; }
+  .glow    { box-shadow: 0 0 0 1px rgba(245,166,35,0.4), 0 0 16px rgba(245,166,35,0.12); }
+
+  /* Amber dot above active nav item */
+  .nav-active::before {
+    content: '';
+    display: block;
+    width: 4px;
+    height: 4px;
+    background: #f5a623;
+    border-radius: 50%;
+    margin: 0 auto 4px;
+  }
+
+  /* ── Animation Keyframes ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes amberPulse {
+    0%, 100% { box-shadow: 0 0 0 1px rgba(245,166,35,0.4), 0 0 16px rgba(245,166,35,0.12); }
+    50%       { box-shadow: 0 0 0 1px rgba(245,166,35,0.6), 0 0 24px rgba(245,166,35,0.22); }
+  }
+  @keyframes stripGrow {
+    from { transform: scaleY(0); }
+    to   { transform: scaleY(1); }
+  }
+  @keyframes fadeUpDim {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 0.4; transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>
+</head>
+<body class="bg-bg font-display text-[#e8edf2] antialiased h-screen flex overflow-hidden selection:bg-primary/30">
+<div class="w-full max-w-md mx-auto h-screen flex flex-col overflow-hidden relative">
+
+  <!-- ── Header ─────────────────────────────────────────── -->
+  <header class="flex-none px-5 pt-12 pb-3 bg-bg/95 backdrop-blur-md z-20 border-b border-white/5"
+          style="opacity:0; animation: fadeUp 0.35s ease both; animation-delay: 0.05s;">
+    <div class="flex justify-between items-start mb-4">
+      <div>
+        <p class="text-[9px] font-mono tracking-[0.15em] text-[#6b7f94] uppercase mb-0.5">STITCH / Library</p>
+        <h1 class="text-[28px] font-extrabold tracking-tight uppercase leading-none">Library</h1>
+        <div class="w-10 h-[2px] bg-primary mt-2"></div>
+      </div>
+      <button class="w-9 h-9 flex items-center justify-center bg-s2 border border-white/6 text-[#6b7f94] hover:text-primary transition-colors mt-1">
+        <span class="material-icons text-[18px]">tune</span>
+      </button>
+    </div>
+
+    <!-- Search -->
+    <div class="mb-3">
+      <p class="text-[9px] font-mono tracking-[0.15em] text-[#6b7f94] uppercase mb-1.5">SEARCH</p>
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <span class="material-icons text-[#6b7f94] text-[18px] search-icon">search</span>
+        </div>
+        <input id="search-input"
+               class="block w-full pl-10 pr-4 py-2.5 bg-s2 border border-white/6 text-[#e8edf2] outline-none font-mono text-sm placeholder-[#6b7f94]"
+               style="border-left: 2px solid transparent; transition: border-left-color 0.15s ease;"
+               placeholder="model / brand / lumens..."
+               type="text"/>
+      </div>
+    </div>
+
+    <!-- Filter chips -->
+    <div class="flex gap-2 overflow-x-auto no-scrollbar -mx-5 px-5">
+      <button class="flex-none px-3 py-1.5 bg-primary text-bg text-[11px] font-bold uppercase tracking-wide active:scale-95 transition-transform">All</button>
+      <button class="flex-none px-3 py-1.5 bg-s2 text-[#6b7f94] border border-white/6 text-[11px] font-medium uppercase tracking-wide hover:border-primary/30 hover:text-[#e8edf2] transition-colors">Brand</button>
+      <button class="flex-none px-3 py-1.5 bg-s2 text-[#6b7f94] border border-white/6 text-[11px] font-medium uppercase tracking-wide hover:border-primary/30 hover:text-[#e8edf2] transition-colors">Resolution</button>
+      <button class="flex-none px-3 py-1.5 bg-s2 text-[#6b7f94] border border-white/6 text-[11px] font-medium uppercase tracking-wide hover:border-primary/30 hover:text-[#e8edf2] transition-colors">Lumens</button>
+      <button class="flex-none px-3 py-1.5 bg-s2 text-[#6b7f94] border border-white/6 text-[11px] font-medium uppercase tracking-wide hover:border-primary/30 hover:text-[#e8edf2] transition-colors">Lens Type</button>
+    </div>
+  </header>
+
+  <!-- ── Main List ───────────────────────────────────────── -->
+  <main class="flex-1 overflow-y-auto px-5 pb-24 pt-2 no-scrollbar">
+    <div class="flex items-center justify-between py-2.5">
+      <h2 class="text-[9px] uppercase tracking-[0.15em] text-[#6b7f94]">Projectors</h2>
+      <span class="readout text-[11px] text-primary"><span id="result-count">0</span> Found</span>
+    </div>
+
+    <!-- Card 1 · Epson EB-PU2220B (Favorited) -->
+    <div class="relative bg-s1 border border-white/6 mb-2 p-4 flex items-start gap-3 hover:border-primary/25 transition-all active:scale-[0.99] overflow-hidden"
+         style="opacity:0; animation: fadeUp 0.4s ease both; animation-delay: 0.15s;">
+      <div class="absolute left-0 inset-y-0 w-[2px] bg-primary"
+           style="transform-origin: top; animation: stripGrow 0.3s ease both; animation-delay: 0.3s;"></div>
+      <div class="w-[60px] h-[60px] flex-shrink-0 bg-s2 border border-white/6 overflow-hidden">
+        <img alt="Epson EB-PU2220B" class="w-full h-full object-contain p-1.5 opacity-85" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYcKQg_qkdaW93MsMqZCUiI5563QUusW3xWHgoZ6xO9Ybzibix0fPfKsLw-MAOTB4K-7tQUiv2XjG39jzqdv3l-hqFMHrWKb4snKA66QgNqpmhFYDENYoeONZqFYZXljn21czksmbMyezOsG8MET5uGP4U1BpTxM7WHELGvEAJgRqrLF4YVhWUG72L3rIpF2OaL9XreSu3xtXyy_04ctMV3x_EVWegTS4iteqn81_VAcFVUmM-RWziqO9xjRbIj_rEMkpdEjounxE"/>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex justify-between items-start">
+          <div class="min-w-0 pr-2">
+            <p class="text-[9px] font-mono text-[#6b7f94] uppercase tracking-wider leading-none mb-0.5">Epson</p>
+            <h3 class="font-bold text-[15px] text-[#e8edf2] truncate leading-tight">EB-PU2220B</h3>
+          </div>
+          <button class="text-primary flex-shrink-0 leading-none">
+            <span class="material-icons text-[20px]">star</span>
+          </button>
+        </div>
+        <div class="flex items-center gap-1.5 my-1.5">
+          <span class="readout text-[12px] text-[#e8edf2]">20,000 lm</span>
+          <span class="text-[#6b7f94] text-[10px]">·</span>
+          <span class="text-[11px] text-[#6b7f94]">WUXGA</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="px-1.5 py-0.5 bg-primary/10 text-primary border border-primary/25 text-[9px] font-bold uppercase tracking-wide">12 Lenses</span>
+          <span class="px-1.5 py-0.5 bg-s3 text-[#6b7f94] border border-white/5 text-[9px] font-bold uppercase tracking-wide">Laser</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2 · Panasonic PT-RQ35K -->
+    <div class="relative bg-s1 border border-white/6 mb-2 p-4 flex items-start gap-3 hover:border-primary/25 transition-all active:scale-[0.99]"
+         style="opacity:0; animation: fadeUp 0.4s ease both; animation-delay: 0.22s;">
+      <div class="w-[60px] h-[60px] flex-shrink-0 bg-s2 border border-white/6 overflow-hidden">
+        <img alt="Panasonic PT-RQ35K" class="w-full h-full object-contain p-1.5 opacity-85" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwe6hyWov9ZLgOwUUFFJ5wHYvo9XpEZfyAMGsgM7zaUOUnNF4wzQtc_rCRBsq9GRgmN7UTKFMEw1Uae9vRdMT8Z9Z1GlWwJ0QEqbUW9vkGkXmyhVQrg6H3Fpwg2VamEml710jfhNwLC_ONdSMLYk336aonaw8WUusgaVaJtFyzZrPa1ZEvZ6PrcFUpUttuiHRGjuD2f4LotA9edlgN_M7HPySGbJL4TLX-eHuzgUFEs6agpXZhfp0laPLGQ_hoUr6DajjFmIOZBvE"/>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex justify-between items-start">
+          <div class="min-w-0 pr-2">
+            <p class="text-[9px] font-mono text-[#6b7f94] uppercase tracking-wider leading-none mb-0.5">Panasonic</p>
+            <h3 class="font-bold text-[15px] text-[#e8edf2] truncate leading-tight">PT-RQ35K</h3>
+          </div>
+          <button class="text-[#6b7f94] hover:text-primary transition-colors flex-shrink-0 leading-none">
+            <span class="material-icons text-[20px]">star_border</span>
+          </button>
+        </div>
+        <div class="flex items-center gap-1.5 my-1.5">
+          <span class="readout text-[12px] text-primary">30,500 lm</span>
+          <span class="text-[#6b7f94] text-[10px]">·</span>
+          <span class="text-[11px] text-[#6b7f94]">4K UHD</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="px-1.5 py-0.5 bg-primary/10 text-primary border border-primary/25 text-[9px] font-bold uppercase tracking-wide">8 Lenses</span>
+          <span class="px-1.5 py-0.5 bg-s3 text-[#6b7f94] border border-white/5 text-[9px] font-bold uppercase tracking-wide">3-Chip DLP</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3 · Barco UDX-4K40 -->
+    <div class="relative bg-s1 border border-white/6 mb-2 p-4 flex items-start gap-3 hover:border-primary/25 transition-all active:scale-[0.99]"
+         style="opacity:0; animation: fadeUp 0.4s ease both; animation-delay: 0.29s;">
+      <div class="w-[60px] h-[60px] flex-shrink-0 bg-s2 border border-white/6 flex items-center justify-center">
+        <span class="material-icons text-s3 text-[28px]">videocam_off</span>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex justify-between items-start">
+          <div class="min-w-0 pr-2">
+            <p class="text-[9px] font-mono text-[#6b7f94] uppercase tracking-wider leading-none mb-0.5">Barco</p>
+            <h3 class="font-bold text-[15px] text-[#e8edf2] truncate leading-tight">UDX-4K40</h3>
+          </div>
+          <button class="text-[#6b7f94] hover:text-primary transition-colors flex-shrink-0 leading-none">
+            <span class="material-icons text-[20px]">star_border</span>
+          </button>
+        </div>
+        <div class="flex items-center gap-1.5 my-1.5">
+          <span class="readout text-[12px] text-[#e8edf2]">37,500 lm</span>
+          <span class="text-[#6b7f94] text-[10px]">·</span>
+          <span class="text-[11px] text-[#6b7f94]">4K UHD</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="px-1.5 py-0.5 bg-primary/10 text-primary border border-primary/25 text-[9px] font-bold uppercase tracking-wide">15 Lenses</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 4 · Christie M 4K25 RGB (Favorited) -->
+    <div class="relative bg-s1 border border-white/6 mb-2 p-4 flex items-start gap-3 hover:border-primary/25 transition-all active:scale-[0.99] overflow-hidden"
+         style="opacity:0; animation: fadeUp 0.4s ease both; animation-delay: 0.36s;">
+      <div class="absolute left-0 inset-y-0 w-[2px] bg-primary"
+           style="transform-origin: top; animation: stripGrow 0.3s ease both; animation-delay: 0.51s;"></div>
+      <div class="w-[60px] h-[60px] flex-shrink-0 bg-s2 border border-white/6 overflow-hidden">
+        <img alt="Christie M 4K25 RGB" class="w-full h-full object-contain p-1.5 opacity-85" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDko0Ql7iOy7Iuce5Piq_Wd-TbXLzdyhLafZJioPKVTpVLSrmdpEx11SQx5XahBw2geXpRVEdez4xBaBiGrdX9Tk5uL8lBGOKnc0_otFrtsZzpM1r2EooW4N_rGOOJd7QLG3NSPbIRm0qhPzIsRR6GX2ZyTlW1eo5I8_Qzxqo438J4nMnuBMfUqEoMtTG4cYL7lVTJdI3FvPm8UKBr7nRmfoxnJiTSOI7JoIlx-gDpAcZZOSCyYD40mtopxS1ePi3I-kqarVOTZ8XM"/>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex justify-between items-start">
+          <div class="min-w-0 pr-2">
+            <p class="text-[9px] font-mono text-[#6b7f94] uppercase tracking-wider leading-none mb-0.5">Christie</p>
+            <h3 class="font-bold text-[15px] text-[#e8edf2] truncate leading-tight">M 4K25 RGB</h3>
+          </div>
+          <button class="text-primary flex-shrink-0 leading-none">
+            <span class="material-icons text-[20px]">star</span>
+          </button>
+        </div>
+        <div class="flex items-center gap-1.5 my-1.5">
+          <span class="readout text-[12px] text-[#e8edf2]">25,300 lm</span>
+          <span class="text-[#6b7f94] text-[10px]">·</span>
+          <span class="text-[11px] text-[#6b7f94]">4K UHD</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="px-1.5 py-0.5 bg-primary/10 text-primary border border-primary/25 text-[9px] font-bold uppercase tracking-wide">6 Lenses</span>
+          <span class="px-1.5 py-0.5 bg-s3 text-[#6b7f94] border border-white/5 text-[9px] font-bold uppercase tracking-wide">RGB Laser</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 5 · Epson L1505U (Discontinued) -->
+    <div class="relative bg-s1 border border-white/6 mb-2 p-4 flex items-start gap-3"
+         style="animation: fadeUpDim 0.4s ease both; animation-delay: 0.43s;">
+      <div class="absolute top-2 right-2">
+        <span class="px-1.5 py-0.5 bg-[#6b7f94]/15 border border-[#6b7f94]/25 text-[8px] font-mono uppercase tracking-widest text-[#6b7f94]">DISCONTINUED</span>
+      </div>
+      <div class="w-[60px] h-[60px] flex-shrink-0 bg-s2 border border-white/6 flex items-center justify-center">
+        <span class="material-icons text-s3 text-[28px]">inventory_2</span>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex justify-between items-start">
+          <div class="min-w-0 pr-14">
+            <p class="text-[9px] font-mono text-[#6b7f94] uppercase tracking-wider leading-none mb-0.5">Epson</p>
+            <h3 class="font-bold text-[15px] text-[#e8edf2] truncate leading-tight">L1505U</h3>
+          </div>
+        </div>
+        <div class="flex items-center gap-1.5 my-1.5">
+          <span class="readout text-[12px] text-[#e8edf2]">12,000 lm</span>
+          <span class="text-[#6b7f94] text-[10px]">·</span>
+          <span class="text-[11px] text-[#6b7f94]">WUXGA</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ── Bottom Nav ──────────────────────────────────────── -->
+  <nav class="flex-none bg-s1/95 backdrop-blur-lg border-t border-white/5 px-6 py-2 pb-7 z-30">
+    <ul class="flex justify-around items-center">
+      <li>
+        <a class="flex flex-col items-center nav-active" href="#">
+          <span class="material-icons text-primary text-[22px]">library_books</span>
+          <span class="text-[10px] font-medium tracking-wide text-primary">Library</span>
+        </a>
+      </li>
+      <li>
+        <a class="flex flex-col items-center" href="#">
+          <span class="material-icons text-[#6b7f94] text-[22px]">calculate</span>
+          <span class="text-[10px] font-medium tracking-wide text-[#6b7f94] mt-1">Calculator</span>
+        </a>
+      </li>
+      <li>
+        <a class="flex flex-col items-center" href="#">
+          <span class="material-icons text-[#6b7f94] text-[22px]">favorite</span>
+          <span class="text-[10px] font-medium tracking-wide text-[#6b7f94] mt-1">Saved</span>
+        </a>
+      </li>
+      <li>
+        <a class="flex flex-col items-center" href="#">
+          <span class="material-icons text-[#6b7f94] text-[22px]">settings</span>
+          <span class="text-[10px] font-medium tracking-wide text-[#6b7f94] mt-1">Settings</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- FAB -->
+  <div class="absolute bottom-[74px] right-5">
+    <button class="w-12 h-12 bg-primary text-bg flex items-center justify-center hover:bg-primary/90 active:scale-95 transition-all"
+            style="border-radius:0.5rem; animation: amberPulse 2.5s ease-in-out infinite;">
+      <span class="material-icons text-[22px]">add</span>
+    </button>
+  </div>
+
+</div>
+<script>
+  const inp = document.getElementById('search-input');
+  inp.addEventListener('focus', () => { inp.style.borderLeftColor = '#f5a623'; });
+  inp.addEventListener('blur',  () => { inp.style.borderLeftColor = 'transparent'; });
+
+  function countUp(el, to, decimals, duration) {
+    const start = performance.now();
+    const run = (now) => {
+      const p = Math.min((now - start) / duration, 1);
+      const e = 1 - Math.pow(1 - p, 3);
+      el.textContent = (to * e).toFixed(decimals);
+      if (p < 1) requestAnimationFrame(run);
+    };
+    requestAnimationFrame(run);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      countUp(document.getElementById('result-count'), 142, 0, 800);
+    }, 600);
+  });
+</script>
+</body>
+</html>

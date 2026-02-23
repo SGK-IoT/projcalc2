@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Library: Projector &amp; Lens Details</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "bg":        "#090d12",
+        "s1":        "#0f1823",
+        "s2":        "#162030",
+        "s3":        "#1e2d3f",
+        "primary":   "#f5a623",
+        "secondary": "#1e8eb4",
+      },
+      fontFamily: {
+        "display": ["'Exo 2'", "sans-serif"],
+        "mono":    ["'Share Tech Mono'", "monospace"],
+      },
+      borderRadius: {
+        "DEFAULT": "0.25rem",
+        "md":  "0.375rem",
+        "lg":  "0.5rem",
+        "xl":  "0.75rem",
+        "2xl": "1rem",
+        "full":"9999px",
+      },
+    },
+  },
+}
+</script>
+<style>
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  body { min-height: max(884px, 100dvh); }
+
+  .readout { font-family: 'Share Tech Mono', monospace; letter-spacing: 0.05em; }
+  .glow    { box-shadow: 0 0 0 1px rgba(245,166,35,0.4), 0 0 16px rgba(245,166,35,0.12); }
+
+  /* Corner bracket on default lens card */
+  .bracket { position: relative; }
+  .bracket::before, .bracket::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-color: #f5a623;
+    border-style: solid;
+    animation: bracketGrow 0.25s ease both;
+    animation-delay: 0.55s;
+  }
+  .bracket::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+  .bracket::after  { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+
+  /* Nav amber dot above active item */
+  .nav-active::before {
+    content: '';
+    display: block;
+    width: 4px;
+    height: 4px;
+    background: #f5a623;
+    border-radius: 50%;
+    margin: 0 auto 4px;
+  }
+
+  /* ── Animation Keyframes ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes amberPulse {
+    0%, 100% { box-shadow: 0 0 0 1px rgba(245,166,35,0.4), 0 0 16px rgba(245,166,35,0.12); }
+    50%       { box-shadow: 0 0 0 1px rgba(245,166,35,0.6), 0 0 24px rgba(245,166,35,0.22); }
+  }
+  @keyframes bracketGrow {
+    from { width: 0; height: 0; }
+    to   { width: 12px; height: 12px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>
+</head>
+<body class="bg-bg font-display text-[#e8edf2] antialiased selection:bg-primary/30">
+
+<div class="mx-auto max-w-md bg-bg min-h-screen relative shadow-2xl flex flex-col">
+
+  <!-- ── Sticky Header ───────────────────────────────────── -->
+  <header class="fixed top-0 inset-x-0 mx-auto w-full max-w-md z-50 bg-bg/90 backdrop-blur-md border-b border-white/5 px-4 pt-12 pb-3 flex items-center gap-3">
+    <!-- Back button with amber left strip -->
+    <div class="relative pl-3 flex-shrink-0">
+      <div class="absolute left-0 inset-y-0 w-[2px] bg-primary"></div>
+      <button class="p-1 text-[#6b7f94] hover:text-[#e8edf2] active:scale-95 transition-all">
+        <span class="material-icons text-[22px]">arrow_back_ios_new</span>
+      </button>
+    </div>
+    <h1 class="flex-1 text-base font-bold tracking-tight text-center uppercase truncate">Panasonic PT-RZ21K</h1>
+    <button class="p-1 flex-shrink-0 text-primary hover:text-primary/80 active:scale-95 transition-all"
+            style="animation: amberPulse 3s ease-in-out infinite; animation-delay: 1s;">
+      <span class="material-icons text-[22px]">star</span>
+    </button>
+  </header>
+
+  <!-- ── Main Content ────────────────────────────────────── -->
+  <main class="flex-1 overflow-y-auto no-scrollbar pt-[88px] pb-24 px-4 space-y-5">
+
+    <!-- Hero Image -->
+    <div class="relative w-full aspect-[4/3] bg-s1 border border-primary/20 overflow-hidden" style="box-shadow: 0 0 0 1px rgba(245,166,35,0.08), inset 0 0 60px rgba(0,0,0,0.6);">
+      <!-- Dark vignette overlay -->
+      <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_40%,rgba(9,13,18,0.7)_100%)] z-10"></div>
+      <img alt="Professional projector device view"
+           class="w-full h-full object-contain p-6"
+           loading="lazy"
+           style="opacity:0; animation: fadeIn 0.5s ease both; animation-delay: 0.1s;"
+           src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJhl0MCN7evONfofckKYArMMUcAvEb1aVzO8SC_XHetjSDrd07GVmb8lPWoy6YjRGFw4Oz-9fBAoAB3-oaYeMXBjpZle-ca1guPCixqgz1-3uvNiyxjfhHEC5CslKacw3cwgc4uwwu9ninPdQRiP8PpIg6wCcPl6-exODmgRy3V0ZgPU-qWrqXXy-4giR4oGVpgKa5DEDvY-DH6HRfkipdV26a9ZSdZbj9eK3BDGvtLFSgURFbeezGYfaXWAGkzPYP-KTRgLyoAig"/>
+      <div class="absolute bottom-3 right-3 z-20">
+        <span class="px-2 py-0.5 bg-primary/15 text-primary text-[9px] font-bold uppercase tracking-widest border border-primary/25 backdrop-blur-sm">PRO SERIES</span>
+      </div>
+    </div>
+
+    <!-- Core Specifications -->
+    <section>
+      <div class="flex items-center gap-2 mb-2.5">
+        <div class="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0"></div>
+        <h2 class="text-[9px] uppercase tracking-[0.2em] text-[#6b7f94]">Core Specifications</h2>
+      </div>
+      <!-- Readout rows panel -->
+      <div class="bg-s1 border border-white/6 divide-y divide-white/5">
+        <div class="relative flex items-center px-4 py-3"
+             style="opacity:0; animation: fadeUp 0.35s ease both; animation-delay: 0.2s;">
+          <div class="absolute left-0 inset-y-0 w-[2px] bg-primary/35"></div>
+          <span class="material-icons text-primary/60 text-[16px] mr-3 flex-shrink-0">light_mode</span>
+          <span class="text-[11px] text-[#6b7f94] flex-1 uppercase tracking-wide">Brightness</span>
+          <span class="readout text-sm text-[#e8edf2]">21,000 lm</span>
+        </div>
+        <div class="relative flex items-center px-4 py-3"
+             style="opacity:0; animation: fadeUp 0.35s ease both; animation-delay: 0.27s;">
+          <div class="absolute left-0 inset-y-0 w-[2px] bg-primary/35"></div>
+          <span class="material-icons text-primary/60 text-[16px] mr-3 flex-shrink-0">memory</span>
+          <span class="text-[11px] text-[#6b7f94] flex-1 uppercase tracking-wide">Technology</span>
+          <span class="readout text-sm text-[#e8edf2]">3-Chip DLP</span>
+        </div>
+        <div class="relative flex items-center px-4 py-3"
+             style="opacity:0; animation: fadeUp 0.35s ease both; animation-delay: 0.34s;">
+          <div class="absolute left-0 inset-y-0 w-[2px] bg-primary/35"></div>
+          <span class="material-icons text-primary/60 text-[16px] mr-3 flex-shrink-0">grid_4x4</span>
+          <span class="text-[11px] text-[#6b7f94] flex-1 uppercase tracking-wide">Resolution</span>
+          <span class="readout text-sm text-[#e8edf2]">WUXGA</span>
+        </div>
+        <div class="relative flex items-center px-4 py-3"
+             style="opacity:0; animation: fadeUp 0.35s ease both; animation-delay: 0.41s;">
+          <div class="absolute left-0 inset-y-0 w-[2px] bg-primary/35"></div>
+          <span class="material-icons text-primary/60 text-[16px] mr-3 flex-shrink-0">scale</span>
+          <span class="text-[11px] text-[#6b7f94] flex-1 uppercase tracking-wide">Weight</span>
+          <span class="readout text-sm text-[#e8edf2]">49 kg</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Available Lenses -->
+    <section>
+      <div class="flex items-center justify-between mb-2.5">
+        <div class="flex items-center gap-2">
+          <div class="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0"></div>
+          <h2 class="text-[9px] uppercase tracking-[0.2em] text-[#6b7f94]">Available Lenses</h2>
+        </div>
+        <span class="readout text-[10px] text-[#6b7f94]">8 Compatible</span>
+      </div>
+
+      <div class="space-y-2">
+
+        <!-- Lens Card 1 · ET-D75LE10 (non-default) -->
+        <div class="bg-s1 border border-white/6 p-4 active:scale-[0.99] transition-transform"
+             style="opacity:0; animation: fadeUp 0.4s ease both; animation-delay: 0.3s;">
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <h3 class="font-bold text-[15px] text-[#e8edf2] leading-tight">ET-D75LE10</h3>
+              <p class="text-[11px] text-[#6b7f94] mt-0.5">Short Zoom Lens</p>
+            </div>
+            <span class="readout text-[11px] px-2 py-1 bg-s3 text-[#6b7f94] border border-white/6">1.3 – 1.7:1</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1.5 text-[11px] text-[#6b7f94]">
+              <span class="material-icons text-[14px]">settings_overscan</span>
+              <span>Zoom Type</span>
+            </div>
+            <button class="text-[11px] font-semibold text-primary border border-primary/30 px-3 py-1.5 hover:bg-primary/10 transition-colors uppercase tracking-wide">
+              Set as Default
+            </button>
+          </div>
+        </div>
+
+        <!-- Lens Card 2 · ET-D75LE20 (DEFAULT – bracket + amber strip) -->
+        <div class="bracket relative bg-s1 border border-white/6 p-4 active:scale-[0.99] transition-transform overflow-hidden"
+             style="opacity:0; animation: fadeUp 0.4s ease both; animation-delay: 0.37s;">
+          <div class="absolute left-0 inset-y-0 w-[2px] bg-primary"></div>
+          <div class="flex justify-between items-start mb-3 pl-1">
+            <div>
+              <div class="flex items-center gap-2 mb-0.5">
+                <h3 class="font-bold text-[15px] text-[#e8edf2] leading-tight">ET-D75LE20</h3>
+                <span class="px-1.5 py-0.5 bg-primary text-bg text-[8px] font-bold uppercase tracking-wider">DEFAULT</span>
+              </div>
+              <p class="text-[11px] text-[#6b7f94]">Standard Zoom Lens</p>
+            </div>
+            <span class="readout text-[11px] px-2 py-1 bg-s3 text-primary border border-primary/25">1.7 – 2.4:1</span>
+          </div>
+          <div class="flex items-center justify-between pl-1">
+            <div class="flex items-center gap-1.5 text-[11px] text-[#6b7f94]">
+              <span class="material-icons text-[14px]">settings_overscan</span>
+              <span>Zoom Type</span>
+            </div>
+            <button class="text-[11px] font-bold text-bg bg-primary px-3 py-1.5 uppercase tracking-wide">
+              Default Set
+            </button>
+          </div>
+        </div>
+
+        <!-- Lens Card 3 · ET-D75LE30 -->
+        <div class="bg-s1 border border-white/6 p-4 active:scale-[0.99] transition-transform"
+             style="opacity:0; animation: fadeUp 0.4s ease both; animation-delay: 0.44s;">
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <h3 class="font-bold text-[15px] text-[#e8edf2] leading-tight">ET-D75LE30</h3>
+              <p class="text-[11px] text-[#6b7f94] mt-0.5">Long Throw Zoom</p>
+            </div>
+            <span class="readout text-[11px] px-2 py-1 bg-s3 text-[#6b7f94] border border-white/6">2.4 – 4.7:1</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1.5 text-[11px] text-[#6b7f94]">
+              <span class="material-icons text-[14px]">settings_overscan</span>
+              <span>Zoom Type</span>
+            </div>
+            <button class="text-[11px] font-semibold text-primary border border-primary/30 px-3 py-1.5 hover:bg-primary/10 transition-colors uppercase tracking-wide">
+              Set as Default
+            </button>
+          </div>
+        </div>
+
+        <!-- Lens Card 4 · ET-D75LE40 -->
+        <div class="bg-s1 border border-white/6 p-4 active:scale-[0.99] transition-transform"
+             style="opacity:0; animation: fadeUp 0.4s ease both; animation-delay: 0.51s;">
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <h3 class="font-bold text-[15px] text-[#e8edf2] leading-tight">ET-D75LE40</h3>
+              <p class="text-[11px] text-[#6b7f94] mt-0.5">Ultra Long Throw</p>
+            </div>
+            <span class="readout text-[11px] px-2 py-1 bg-s3 text-[#6b7f94] border border-white/6">4.6 – 7.4:1</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1.5 text-[11px] text-[#6b7f94]">
+              <span class="material-icons text-[14px]">settings_overscan</span>
+              <span>Zoom Type</span>
+            </div>
+            <button class="text-[11px] font-semibold text-primary border border-primary/30 px-3 py-1.5 hover:bg-primary/10 transition-colors uppercase tracking-wide">
+              Set as Default
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Footer note -->
+    <div class="text-center py-3">
+      <p class="text-[9px] font-mono text-[#6b7f94]/60 leading-relaxed">
+        Lens compatibility may vary by hardware revision.<br/>Consult manual before rental.
+      </p>
+    </div>
+    <div class="h-4"></div>
+
+  </main>
+
+  <!-- ── Bottom Nav ──────────────────────────────────────── -->
+  <nav class="fixed bottom-0 inset-x-0 mx-auto w-full max-w-md bg-s1/95 backdrop-blur-lg border-t border-white/5 pb-6 pt-2 px-6 flex justify-between items-end z-50">
+    <button class="flex flex-col items-center nav-active">
+      <span class="material-icons text-primary text-[22px]">grid_view</span>
+      <span class="text-[10px] font-medium text-primary">Library</span>
+    </button>
+    <button class="flex flex-col items-center mt-1">
+      <span class="material-icons text-[#6b7f94] text-[22px]">calculate</span>
+      <span class="text-[10px] font-medium text-[#6b7f94] mt-1">Calc</span>
+    </button>
+    <button class="flex flex-col items-center mt-1">
+      <span class="material-icons text-[#6b7f94] text-[22px]">cases</span>
+      <span class="text-[10px] font-medium text-[#6b7f94] mt-1">Projects</span>
+    </button>
+    <button class="flex flex-col items-center mt-1">
+      <span class="material-icons text-[#6b7f94] text-[22px]">person</span>
+      <span class="text-[10px] font-medium text-[#6b7f94] mt-1">Profile</span>
+    </button>
+  </nav>
+
+</div>
+<script>
+  function countUp(el, to, decimals, duration) {
+    const start = performance.now();
+    const run = (now) => {
+      const p = Math.min((now - start) / duration, 1);
+      const e = 1 - Math.pow(1 - p, 3);
+      el.textContent = (to * e).toFixed(decimals);
+      if (p < 1) requestAnimationFrame(run);
+    };
+    requestAnimationFrame(run);
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="de" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#090d12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Stitch — Projektionsplaner</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+  <script type="importmap">{"imports":{"@material/web/":"https://esm.run/@material/web/"}}</script>
+  <script type="module">
+    import '@material/web/all.js';
+    import {styles as typescaleStyles} from '@material/web/typography/md-typescale-styles.js';
+    document.adoptedStyleSheets.push(typescaleStyles.styleSheet);
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { height: 100%; -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: 'Exo 2', sans-serif;
+      background: #090d12; color: #e8edf2;
+      min-height: 100dvh; line-height: 1.5; overflow: hidden;
+    }
+    button, input, select, textarea { font-family: inherit; font-size: inherit; color: inherit; }
+    button { cursor: pointer; background: none; border: none; }
+    input, select { background: none; border: none; outline: none; }
+
+    :root {
+      --primary: #f5a623; --primary-dark: #d4891e;
+      --primary-60: rgba(245,166,35,0.6);
+      --bg: #090d12; --s1: #0f1823; --s2: #162030; --s3: #1e2d3f;
+      --border: rgba(255,255,255,0.06); --border-10: rgba(255,255,255,0.08);
+      --text: #e8edf2; --text-60: rgba(232,237,242,0.6); --text-50: rgba(232,237,242,0.5);
+      --text-40: #6b7f94; --text-30: rgba(232,237,242,0.3); --text-20: rgba(232,237,242,0.18);
+      --radius: 12px; --radius-sm: 8px; --radius-xs: 4px;
+      --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+      /* MD3 global shape tokens */
+      --md-sys-shape-corner-full: 9999px;
+      --md-sys-shape-corner-extra-large: 28px;
+      --md-sys-shape-corner-large: 16px;
+      --md-sys-shape-corner-medium: 12px;
+      --md-sys-shape-corner-small: 8px;
+      --md-sys-shape-corner-extra-small: 4px;
+      --md-sys-shape-corner-none: 0px;
+      /* ── Material Web 3 dark amber token overrides ── */
+      --md-sys-color-primary: #f5a623;
+      --md-sys-color-on-primary: #090d12;
+      --md-sys-color-primary-container: rgba(245,166,35,0.12);
+      --md-sys-color-on-primary-container: #f5a623;
+      --md-sys-color-secondary: #1e8eb4;
+      --md-sys-color-on-secondary: #090d12;
+      --md-sys-color-background: #090d12;
+      --md-sys-color-on-background: #e8edf2;
+      --md-sys-color-surface: #0f1823;
+      --md-sys-color-surface-container: #0f1823;
+      --md-sys-color-surface-container-high: #162030;
+      --md-sys-color-surface-container-highest: #1e2d3f;
+      --md-sys-color-on-surface: #e8edf2;
+      --md-sys-color-on-surface-variant: #6b7f94;
+      --md-sys-color-outline: rgba(255,255,255,0.18);
+      --md-sys-color-outline-variant: rgba(255,255,255,0.06);
+      --md-sys-color-inverse-surface: #e8edf2;
+      --md-sys-color-inverse-on-surface: #090d12;
+      /* Typography */
+      --md-ref-typeface-brand: 'Exo 2';
+      --md-ref-typeface-plain: 'Exo 2';
+    }
+    .readout { font-family: 'Share Tech Mono', monospace; letter-spacing: 0.05em; }
+
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    #app { max-width: 448px; margin: 0 auto; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+
+    .tab-content { display: none; flex: 1; overflow: hidden; }
+    .tab-content.active { display: flex; flex-direction: column; }
+
+    .glass-header {
+      position: sticky; top: 0; z-index: 30; padding: 12px 16px 8px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(9,13,18,0.97);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    }
+    .glass-header h1 { font-size: 20px; font-weight: 700; margin-bottom: 0; letter-spacing: 0.03em; text-transform: uppercase; }
+    #btn-calc-reset:hover { color: var(--primary) !important; background: rgba(245,166,35,0.1); }
+
+    .search-wrap { position: relative; margin-bottom: 8px; }
+    .search-wrap .icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-40); font-size: 18px; }
+    .search-input {
+      width: 100%; background: var(--s2); border: 1px solid var(--border);
+      border-radius: 28px; padding: 9px 14px 9px 36px; font-size: 12px; color: var(--text);
+      font-family: 'Share Tech Mono', monospace;
+      transition: border-color 0.15s ease;
+    }
+    .search-input::placeholder { color: var(--text-40); }
+    .search-input:focus { border-color: var(--primary); outline: none; }
+
+    /* Sub-tabs */
+    .sub-tabs { display: flex; gap: 0; margin-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .sub-tab {
+      flex: 1; padding: 8px 0; font-size: 10px; font-weight: 700;
+      color: var(--text-40); text-align: center; position: relative; transition: color 0.15s;
+      letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .sub-tab.active { color: var(--primary); }
+    .sub-tab.active::after {
+      content: ''; position: absolute; bottom: -1px; left: 25%; right: 25%;
+      height: 2px; background: var(--primary); border-radius: 1px;
+    }
+    .sub-panel { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+    .sub-panel.active { display: flex; }
+
+    .chip-row { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; }
+
+    .scroll-main { flex: 1; overflow-y: auto; padding: 12px 16px 90px; }
+
+    /* Library card */
+    .lib-card {
+      display: flex; align-items: center; gap: 12px; width: 100%;
+      background: var(--s1); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 12px 14px; margin-bottom: 6px; text-align: left;
+      position: relative; overflow: hidden;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .lib-card:hover { border-color: rgba(245,166,35,0.3); background: var(--s2); }
+    .lib-card:active { background: var(--s3); }
+    .fav-strip {
+      position: absolute !important; left: 0; top: 0; bottom: 0; width: 2px; z-index: 1;
+      background: var(--primary);
+    }
+    .lib-card .icon-box {
+      width: 40px; height: 40px; background: rgba(245,166,35,0.08);
+      border: 1px solid rgba(245,166,35,0.18); border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .lib-card .icon-box .material-icons-round { color: var(--primary); font-size: 20px; }
+    .lib-card .info { flex: 1; min-width: 0; }
+    .lib-card .info .name-row { display: flex; align-items: center; gap: 6px; }
+    .lib-card .info .name { font-size: 13px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; letter-spacing: 0.01em; }
+    .lib-card .info .meta { display: flex; align-items: center; gap: 10px; margin-top: 3px; }
+    .lib-card .info .meta span { font-size: 10px; color: var(--text-40); }
+    .lib-card .info .meta .readout { font-size: 11px; color: var(--text); }
+    .lib-card .card-actions { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+    .lib-card .chevron { color: var(--text-20); font-size: 18px; }
+
+    .badge-custom { font-size: 9px; font-weight: 700; padding: 2px 7px; background: rgba(245,166,35,0.15); color: var(--primary); white-space: nowrap; letter-spacing: 0.06em; text-transform: uppercase; border-radius: 20px; }
+    .badge-brand { font-size: 9px; font-weight: 700; padding: 2px 7px; background: rgba(30,142,180,0.15); color: #1e8eb4; white-space: nowrap; letter-spacing: 0.06em; text-transform: uppercase; border-radius: 20px; }
+
+    .fav-btn {
+      width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+      color: var(--text-20); transition: all 0.15s; flex-shrink: 0; border-radius: 50%;
+    }
+    .fav-btn:hover { color: var(--primary); background: rgba(245,166,35,0.2); }
+    .fav-btn.is-fav { color: var(--primary); }
+    .fav-btn .material-icons-round { font-size: 18px; }
+
+    .lens-fav-btn { width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center; color: var(--text-20); transition: all 0.15s; flex-shrink: 0; cursor: pointer; }
+    .lens-fav-btn:hover { color: var(--primary); background: rgba(245,166,35,0.2); }
+    .lens-fav-btn.is-fav { color: var(--primary); }
+    .lens-fav-btn .material-icons-round { font-size: 16px; }
+
+    .result-card.is-fav-lens { border-left: 2px solid var(--primary); }
+    .result-card .fav-badge { font-size: 9px; font-weight: 700; padding: 2px 5px; background: rgba(245,166,35,0.2); color: var(--primary); white-space: nowrap; display: inline-flex; align-items: center; gap: 2px; letter-spacing: 0.05em; }
+    .result-card .fav-badge .material-icons-round { font-size: 11px; }
+
+    .fab {
+      position: fixed;
+      bottom: calc(72px + env(safe-area-inset-bottom, 0px) + 12px);
+      right: 20px; z-index: 45;
+      width: 52px; height: 52px; border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--primary);
+      box-shadow: 0 0 0 1px rgba(245,166,35,0.4), 0 0 20px rgba(245,166,35,0.25);
+      animation: amberPulse 2.5s ease-in-out infinite;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .fab:hover { transform: scale(1.05); }
+    .fab:active { transform: scale(0.93); }
+    .fab .material-icons-round { color: #090d12; font-size: 24px; }
+
+    /* Bottom nav — flat instrument panel */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 448px; z-index: 40; display: flex;
+      background: var(--s1); border-top: 1px solid var(--border);
+      padding: 8px 0 calc(8px + env(safe-area-inset-bottom, 0px));
+    }
+    .nav-btn {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      padding: 6px 0 4px; gap: 3px; color: var(--text-40); transition: color 0.15s;
+    }
+    .nav-btn.active { color: var(--primary); }
+    .nav-btn.active .material-icons-round { background: rgba(245,166,35,0.12); }
+    .nav-btn:active { opacity: 0.7; }
+    .nav-btn .material-icons-round { font-size: 22px; display: inline-block; border-radius: 14px; padding: 3px 14px; transition: background 0.2s; }
+    .nav-btn span:last-child { font-size: 9px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; }
+
+    .modal-backdrop {
+      position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,0.78);
+      display: flex; align-items: flex-end; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    }
+    .modal-backdrop.open { opacity: 1; pointer-events: auto; }
+    .modal-sheet {
+      width: 100%; max-width: 448px;
+      background: var(--s1); border-top: 1px solid var(--border);
+      border-radius: 28px 28px 0 0;
+      max-height: 85vh; display: flex; flex-direction: column;
+      box-shadow: 0 -8px 40px rgba(0,0,0,0.5);
+      transform: translateY(100%); transition: transform 0.5s var(--spring);
+    }
+    .modal-backdrop.open .modal-sheet { transform: translateY(0); }
+    .modal-handle { display: flex; justify-content: center; padding: 12px 0 4px; }
+    .modal-handle div { width: 36px; height: 2px; background: var(--border); }
+    .modal-body { flex: 1; overflow-y: auto; padding: 0 20px 24px; }
+
+    .label { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-40); font-family: 'Share Tech Mono', monospace; margin-bottom: 6px; display: block; }
+
+    .field-input {
+      width: 100%; background: var(--s2); border: 1px solid var(--border);
+      border-radius: var(--radius-xs); padding: 10px 14px; font-size: 13px; color: var(--text);
+    }
+    .field-input::placeholder { color: var(--text-40); }
+    .field-input:focus { border-color: var(--primary); outline: none; }
+    select.field-input { appearance: auto; }
+
+    .field-sm {
+      width: 100%; background: var(--s2); border: 1px solid var(--border);
+      border-radius: var(--radius-xs); padding: 7px 10px; font-size: 13px; color: var(--text);
+    }
+    .field-sm::placeholder { color: var(--text-40); }
+    .field-sm:focus { border-color: var(--primary); outline: none; }
+
+    .toggle-group { display: flex; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+    .toggle-btn { flex: 1; padding: 9px 8px; font-size: 10px; font-weight: 700; color: var(--text-40); transition: all 0.15s; letter-spacing: 0.06em; text-transform: uppercase; }
+    .toggle-btn + .toggle-btn { border-left: 1px solid var(--border); }
+    .toggle-btn.active { background: rgba(245,166,35,0.1); color: var(--primary); }
+
+    .btn-primary { width: 100%; padding: 12px; background: var(--primary); color: #090d12; font-size: 12px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; transition: background 0.15s; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-secondary { padding: 12px; border: 1px solid var(--border); color: var(--text-60); font-size: 12px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; transition: all 0.15s; background: var(--s2); }
+    .btn-secondary:hover { border-color: var(--text-40); color: var(--text); }
+
+    .result-card { background: var(--s1); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 6px; position: relative; overflow: hidden; }
+    .result-card .lens-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+    .result-card .lens-name { font-size: 12px; font-weight: 700; letter-spacing: 0.02em; }
+    .result-card .lens-ratio { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-40); }
+    .result-card .lens-val { display: flex; align-items: center; gap: 8px; }
+    .result-card .lens-val .material-icons-round { color: var(--primary); font-size: 16px; }
+    .result-card .lens-val span { font-family: 'Share Tech Mono', monospace; font-size: 14px; }
+    .result-card .lens-sub { font-size: 10px; color: var(--text-40); display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+    .result-card .lens-sub .material-icons-round { font-size: 14px; color: var(--text-30); }
+
+    .detail-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .detail-icon { width: 44px; height: 44px; background: rgba(245,166,35,0.08); border: 1px solid rgba(245,166,35,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .detail-icon .material-icons-round { color: var(--primary); font-size: 22px; }
+    .detail-title { font-size: 16px; font-weight: 700; letter-spacing: 0.01em; }
+    .detail-sub { font-size: 10px; color: var(--text-40); margin-top: 2px; font-family: 'Share Tech Mono', monospace; }
+    .detail-fav { margin-left: auto; }
+
+    .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-bottom: 16px; }
+    .stat-box { background: var(--s2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px; text-align: center; }
+    .stat-val { font-family: 'Share Tech Mono', monospace; font-size: 16px; font-weight: 400; letter-spacing: 0.05em; }
+    .stat-val .unit { font-size: 10px; color: var(--text-40); }
+    .stat-val.primary { color: var(--primary); }
+    .stat-label { font-size: 8px; color: var(--text-40); text-transform: uppercase; letter-spacing: 0.12em; margin-top: 2px; font-family: 'Share Tech Mono', monospace; }
+
+    .lens-row { background: var(--s1); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; transition: border-color 0.15s; }
+    .lens-row:hover { border-color: rgba(245,166,35,0.3); }
+    .lens-row .l-name { font-size: 12px; font-weight: 700; }
+    .lens-row .l-range { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--text-50); }
+
+    .detail-actions { display: flex; gap: 8px; }
+    .detail-actions .btn-primary { flex: 1; }
+    .btn-icon { padding: 10px 14px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); }
+    .btn-icon.edit { border: 1px solid var(--border-10); color: var(--text-60); }
+    .btn-icon.delete { border: 1px solid rgba(239,68,68,0.3); color: #f87171; }
+
+    .settings-card { background: var(--s1); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; }
+    .settings-card h3 { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; color: var(--text-40); font-family: 'Share Tech Mono', monospace; }
+    .settings-item { display: flex; align-items: center; gap: 12px; background: var(--s2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 4px; }
+    .settings-item .si-info { flex: 1; min-width: 0; }
+    .settings-item .si-name { font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .settings-item .si-meta { font-size: 10px; color: var(--text-40); font-family: 'Share Tech Mono', monospace; }
+    .settings-item .si-btn { color: var(--text-40); padding: 4px; }
+    .settings-item .si-btn:hover { color: var(--text); }
+    .settings-item .si-btn.danger:hover { color: #f87171; }
+    .inv-toggle { width: 44px; height: 24px; background: var(--s3); border-radius: 12px; position: relative; transition: background 0.2s; flex-shrink: 0; cursor: pointer; border: 1px solid var(--border); }
+    .inv-toggle.on { background: var(--primary); border-color: var(--primary); }
+    .inv-toggle-knob { position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; background: var(--text-40); border-radius: 50%; transition: transform 0.2s, background 0.2s; pointer-events: none; }
+    .inv-toggle.on .inv-toggle-knob { transform: translateX(20px); background: #fff; }
+
+    .picker-item { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 10px 14px; margin-bottom: 4px; transition: background 0.15s; border: 1px solid transparent; border-radius: var(--radius); }
+    .picker-item:hover { background: var(--s2); border-color: var(--border); }
+    .picker-item.selected { background: rgba(245,166,35,0.08); border: 1px solid rgba(245,166,35,0.25); }
+    .picker-item .pi-icon { color: var(--primary-60); font-size: 18px; }
+    .picker-item .pi-info { flex: 1; min-width: 0; }
+    .picker-item .pi-name { font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .picker-item .pi-meta { font-size: 10px; color: var(--text-40); font-family: 'Share Tech Mono', monospace; }
+
+    .select-btn { width: 100%; margin-top: 4px; background: var(--s2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; text-align: left; font-size: 13px; display: flex; align-items: center; justify-content: space-between; }
+    .select-btn .placeholder { color: var(--text-60); }
+    .select-btn .selected-text { color: var(--text); }
+    .select-btn .material-icons-round { color: var(--text-40); font-size: 18px; }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .form-group label { display: block; font-size: 9px; color: var(--text-40); margin-bottom: 3px; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; letter-spacing: 0.07em; }
+    .form-actions { display: flex; gap: 8px; padding-top: 8px; }
+    .form-actions button { flex: 1; }
+
+    .lens-field { background: var(--s2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px; margin-bottom: 6px; }
+    .lens-field-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+    .lens-field-header span { font-size: 9px; color: var(--text-40); font-family: 'Share Tech Mono', monospace; text-transform: uppercase; letter-spacing: 0.07em; }
+    .lens-field-header button { color: var(--text-30); padding: 2px; }
+    .lens-field-header button:hover { color: #f87171; }
+    .lens-field .lf-row { display: flex; gap: 8px; }
+    .lens-field .lf-row > div { flex: 1; }
+    .lens-field .lf-row label { display: block; font-size: 9px; color: var(--text-30); margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.07em; }
+
+    .empty { text-align: center; color: var(--text-30); font-size: 12px; padding: 32px 0; font-family: 'Share Tech Mono', monospace; }
+    .calc-input-wrap { position: relative; }
+    .calc-input-wrap .unit-suffix { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 12px; color: var(--text-40); font-family: 'Share Tech Mono', monospace; }
+    input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type="number"] { -moz-appearance: textfield; }
+    .custom-ar { display: none; align-items: center; gap: 8px; margin-top: 8px; }
+    .custom-ar.show { display: flex; }
+    .custom-ar input { width: 80px; }
+    .custom-ar .sep { color: var(--text-40); }
+    .mt-2 { margin-top: 8px; } .mb-2 { margin-bottom: 8px; } .mb-4 { margin-bottom: 16px; }
+    .about-text { font-size: 13px; color: var(--text-50); }
+    .about-sub { font-size: 11px; color: var(--text-30); margin-top: 4px; font-family: 'Share Tech Mono', monospace; }
+    .screen-info { background: var(--s2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 6px; }
+    .screen-info .si-label { font-size: 8px; color: var(--text-40); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 3px; font-family: 'Share Tech Mono', monospace; }
+    .screen-info .si-value { font-family: 'Share Tech Mono', monospace; font-size: 13px; }
+    .screen-info .si-value .dim { color: var(--text-40); }
+
+    /* ── Animation Keyframes ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes amberPulse {
+      0%, 100% { box-shadow: 0 0 0 1px rgba(245,166,35,0.4), 0 0 16px rgba(245,166,35,0.12); }
+      50%       { box-shadow: 0 0 0 1px rgba(245,166,35,0.6), 0 0 24px rgba(245,166,35,0.22); }
+    }
+    .tab-content.active { animation: fadeIn 0.2s ease both; }
+    .lib-card { opacity: 0; animation: fadeUp 0.35s ease both; }
+    .result-card { opacity: 0; animation: fadeUp 0.3s ease both; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* ── Material Web 3 — amber dark theme, natural M3 shapes ── */
+
+
+    md-tabs {
+      --md-secondary-tab-active-indicator-color: #f5a623;
+      --md-secondary-tab-active-indicator-height: 2px;
+      --md-secondary-tab-active-label-text-color: #f5a623;
+      --md-secondary-tab-active-hover-label-text-color: #f5a623;
+      --md-secondary-tab-active-focus-label-text-color: #f5a623;
+      --md-secondary-tab-inactive-label-text-color: #6b7f94;
+      --md-secondary-tab-inactive-hover-label-text-color: #e8edf2;
+      --md-secondary-tab-container-color: #162030;
+      width: 100%; border-radius: var(--radius-sm); overflow: hidden;
+    }
+    md-secondary-tab { flex: 1; }
+
+    /* Pill-shaped filter chips */
+    md-filter-chip {
+      --md-filter-chip-container-shape: 9999px;
+      --md-filter-chip-container-color: #162030;
+      --md-filter-chip-outline-color: rgba(255,255,255,0.14);
+      --md-filter-chip-label-text-color: #6b7f94;
+      --md-filter-chip-hover-label-text-color: #e8edf2;
+      --md-filter-chip-selected-container-color: rgba(245,166,35,0.18);
+      --md-filter-chip-selected-outline-color: #f5a623;
+      --md-filter-chip-selected-label-text-color: #f5a623;
+      --md-filter-chip-selected-hover-label-text-color: #f5a623;
+      --md-filter-chip-selected-leading-icon-color: #f5a623;
+      --md-filter-chip-leading-icon-color: #6b7f94;
+    }
+    md-chip-set { gap: 8px; }
+    #lib-filters, #scr-filters { overflow-x: auto; padding-bottom: 4px; }
+    #lib-filters::-webkit-scrollbar, #scr-filters::-webkit-scrollbar { display: none; }
+    .chip-row md-chip-set { flex-wrap: nowrap; min-width: max-content; }
+
+    /* Pill-shaped buttons */
+    md-filled-button {
+      --md-filled-button-container-color: #f5a623;
+      --md-filled-button-label-text-color: #090d12;
+      --md-filled-button-hover-label-text-color: #090d12;
+      --md-filled-button-pressed-label-text-color: #090d12;
+      --md-filled-button-container-shape: 9999px;
+      width: 100%;
+    }
+    md-outlined-button {
+      --md-outlined-button-outline-color: rgba(255,255,255,0.2);
+      --md-outlined-button-label-text-color: #e8edf2;
+      --md-outlined-button-hover-label-text-color: #f5a623;
+      --md-outlined-button-container-shape: 9999px;
+      width: 100%;
+    }
+    .form-actions md-filled-button, .form-actions md-outlined-button { flex: 1; }
+  </style>
+</head>
+<body>
+  <div id="app">
+
+    <!-- ===== CALCULATOR TAB (default) ===== -->
+    <section id="tab-calc" class="tab-content active">
+      <header class="glass-header" style="display:flex;align-items:center;justify-content:space-between">
+        <h1 style="margin-bottom:0">Projektionsrechner</h1>
+        <button id="btn-calc-reset" title="Zurücksetzen" style="display:none;color:var(--text-40);padding:6px;border-radius:50%;transition:color 0.15s,background 0.15s">
+          <span class="material-icons-round" style="font-size:20px">restart_alt</span>
+        </button>
+      </header>
+      <main class="scroll-main no-scrollbar">
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div>
+            <div class="label">Projektor</div>
+            <button id="calc-proj-btn" class="select-btn">
+              <span id="calc-proj-label" class="placeholder">Projektor auswählen…</span>
+              <span class="material-icons-round">expand_more</span>
+            </button>
+          </div>
+          <div>
+            <div class="label">Leinwand <span style="font-size:10px;color:var(--text-30);text-transform:none;letter-spacing:0;font-weight:400">(optional)</span></div>
+            <button id="calc-scr-btn" class="select-btn">
+              <span id="calc-scr-label" class="placeholder">Leinwand auswählen…</span>
+              <span class="material-icons-round">expand_more</span>
+            </button>
+            <button id="calc-scr-clear" style="display:none;font-size:12px;color:var(--text-40);margin-top:4px;padding:4px 0">Auswahl zurücksetzen</button>
+          </div>
+          <md-tabs id="calc-mode-tabs" active-tab-index="0">
+            <md-secondary-tab>Bildbreite eingeben</md-secondary-tab>
+            <md-secondary-tab>Distanz eingeben</md-secondary-tab>
+          </md-tabs>
+          <div id="calc-manual-input">
+            <div>
+              <div class="label" id="calc-input-label">Bildbreite</div>
+              <div class="calc-input-wrap">
+                <input id="calc-input" type="number" step="0.01" min="0" placeholder="0.00" class="field-input">
+                <span id="calc-unit-label" class="unit-suffix">m</span>
+              </div>
+            </div>
+            <div style="margin-top:16px">
+              <div class="label">Seitenverhältnis</div>
+              <md-chip-set class="mt-2">
+                <md-filter-chip class="ar-chip" data-ar="16:9" label="16:9" selected></md-filter-chip>
+                <md-filter-chip class="ar-chip" data-ar="16:10" label="16:10"></md-filter-chip>
+                <md-filter-chip class="ar-chip" data-ar="4:3" label="4:3"></md-filter-chip>
+                <md-filter-chip class="ar-chip" data-ar="custom" label="Benutzerdefiniert"></md-filter-chip>
+              </md-chip-set>
+              <div id="custom-ar" class="custom-ar">
+                <input id="ar-w" type="number" min="1" value="16" class="field-sm">
+                <span class="sep">:</span>
+                <input id="ar-h" type="number" min="1" value="9" class="field-sm">
+              </div>
+            </div>
+          </div>
+          <div id="calc-results"></div>
+        </div>
+        <div id="calc-no-proj" class="empty">Wähle einen Projektor, um Ergebnisse zu sehen</div>
+      </main>
+    </section>
+
+    <!-- ===== LIBRARY TAB ===== -->
+    <section id="tab-library" class="tab-content">
+      <header class="glass-header">
+        <h1>Bibliothek</h1>
+        <div class="sub-tabs">
+          <button class="sub-tab active" data-panel="projectors">Projektoren</button>
+          <button class="sub-tab" data-panel="screens">Leinwände</button>
+        </div>
+      </header>
+
+      <!-- Projectors sub-panel -->
+      <div id="panel-projectors" class="sub-panel active">
+        <div style="padding:8px 16px 0">
+          <div class="search-wrap">
+            <span class="material-icons-round icon">search</span>
+            <input id="lib-search" type="text" placeholder="Projektor suchen…" class="search-input">
+          </div>
+          <div id="lib-filters" class="chip-row no-scrollbar"></div>
+        </div>
+        <main id="lib-list" class="scroll-main no-scrollbar"></main>
+      </div>
+
+      <!-- Screens sub-panel -->
+      <div id="panel-screens" class="sub-panel">
+        <div style="padding:8px 16px 0">
+          <div class="search-wrap">
+            <span class="material-icons-round icon">search</span>
+            <input id="scr-search" type="text" placeholder="Leinwand suchen…" class="search-input">
+          </div>
+          <div id="scr-filters" class="chip-row no-scrollbar"></div>
+        </div>
+        <main id="scr-list" class="scroll-main no-scrollbar"></main>
+      </div>
+
+      <button id="btn-add-item" class="fab">
+        <span class="material-icons-round">add</span>
+      </button>
+    </section>
+
+
+    <!-- ===== SETTINGS TAB ===== -->
+    <section id="tab-settings" class="tab-content">
+      <header class="glass-header"><h1>Einstellungen</h1></header>
+      <main class="scroll-main no-scrollbar">
+        <div class="settings-card mb-4">
+          <h3>Maßeinheiten</h3>
+          <md-chip-set>
+            <md-filter-chip class="unit-chip" data-unit="m" label="Meter"></md-filter-chip>
+            <md-filter-chip class="unit-chip" data-unit="ft" label="Fuß"></md-filter-chip>
+          </md-chip-set>
+        </div>
+        <div class="settings-card mb-4">
+          <h3>Bibliothek</h3>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+            <div>
+              <div style="font-size:13px;font-weight:600;margin-bottom:2px">Alle Geräte anzeigen</div>
+              <div style="font-size:10px;color:var(--text-40);font-family:'Share Tech Mono',monospace">Zeigt die vollständige Datenbank statt nur dein Inventar</div>
+            </div>
+            <button id="toggle-show-all" class="inv-toggle" aria-label="Alle anzeigen umschalten">
+              <span class="inv-toggle-knob"></span>
+            </button>
+          </div>
+        </div>
+        <div class="settings-card mb-4">
+          <h3>Eigene Projektoren</h3>
+          <div id="settings-custom-list"></div>
+          <p id="settings-no-custom" class="empty" style="padding:12px 0">Keine eigenen Projektoren vorhanden</p>
+        </div>
+        <div class="settings-card mb-4">
+          <h3>Eigene Leinwände</h3>
+          <div id="settings-custom-scr"></div>
+          <p id="settings-no-scr" class="empty" style="padding:12px 0">Keine eigenen Leinwände vorhanden</p>
+        </div>
+        <div class="settings-card">
+          <h3>Über</h3>
+          <p class="about-text">Stitch — Projektionsplaner</p>
+          <p class="about-sub">Version 1.0.0</p>
+          <p class="about-sub">Offline-fähige App für AV-Profis</p>
+        </div>
+      </main>
+    </section>
+
+    <!-- ===== BOTTOM NAV ===== -->
+    <nav class="bottom-nav">
+      <button class="nav-btn active" data-tab="calc">
+        <span class="material-icons-round">calculate</span><span>Rechner</span>
+      </button>
+
+      <button class="nav-btn" data-tab="library">
+        <span class="material-icons-round">video_library</span><span>Bibliothek</span>
+      </button>
+      <button class="nav-btn" data-tab="settings">
+        <span class="material-icons-round">settings</span><span>Einstellungen</span>
+      </button>
+    </nav>
+
+    <!-- PROJECTOR DETAIL MODAL -->
+    <div id="modal-detail" class="modal-backdrop">
+      <div class="modal-sheet"><div class="modal-handle"><div></div></div>
+        <div id="modal-detail-content" class="modal-body no-scrollbar"></div>
+      </div>
+    </div>
+
+    <!-- SCREEN DETAIL MODAL -->
+    <div id="modal-scr-detail" class="modal-backdrop">
+      <div class="modal-sheet"><div class="modal-handle"><div></div></div>
+        <div id="modal-scr-detail-content" class="modal-body no-scrollbar"></div>
+      </div>
+    </div>
+
+    <!-- ADD/EDIT PROJECTOR MODAL -->
+    <div id="modal-add" class="modal-backdrop">
+      <div class="modal-sheet" style="max-height:90vh"><div class="modal-handle"><div></div></div>
+        <div class="modal-body no-scrollbar">
+          <h2 id="add-modal-title" style="font-size:18px;font-weight:600;margin-bottom:16px">Eigenen Projektor hinzufügen</h2>
+          <form id="form-add">
+            <input type="hidden" id="add-edit-id">
+            <div class="form-grid">
+              <div class="form-group"><label>Marke</label><input id="add-brand" type="text" required class="field-sm" placeholder="z.B. Barco"></div>
+              <div class="form-group"><label>Modell</label><input id="add-model" type="text" required class="field-sm" placeholder="z.B. UDX-4K40"></div>
+            </div>
+            <div class="form-grid">
+              <div class="form-group"><label>Auflösung</label>
+                <select id="add-resolution" class="field-sm">
+                  <option value="3840x2160|4K UHD">4K UHD</option><option value="2560x1600|WQXGA">WQXGA</option>
+                  <option value="1920x1200|WUXGA">WUXGA</option><option value="1920x1080|Full HD">Full HD</option>
+                  <option value="1400x1050|SXGA+">SXGA+</option>
+                </select>
+              </div>
+              <div class="form-group"><label>Lumen</label><input id="add-lumens" type="number" min="100" required class="field-sm" placeholder="10000"></div>
+            </div>
+            <div class="form-grid">
+              <div class="form-group"><label>Technologie</label>
+                <select id="add-tech" class="field-sm"><option>Laser</option><option>Laser Phosphor</option><option>Lampe</option><option>LED</option></select>
+              </div>
+              <div class="form-group"><label>Gewicht (kg)</label><input id="add-weight" type="number" step="0.1" min="0" class="field-sm" placeholder="z.B. 30"></div>
+            </div>
+            <div style="margin-top:8px">
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <div class="label">Objektive</div>
+                <button type="button" id="btn-add-lens" style="font-size:12px;color:var(--primary);font-weight:500;display:flex;align-items:center;gap:4px">
+                  <span class="material-icons-round" style="font-size:14px">add</span> Objektiv hinzufügen
+                </button>
+              </div>
+              <div id="lens-list" style="margin-top:8px"></div>
+            </div>
+            <div class="form-actions">
+              <md-outlined-button type="button" id="btn-cancel-add">Abbrechen</md-outlined-button>
+              <md-filled-button type="submit">Projektor speichern</md-filled-button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADD/EDIT SCREEN MODAL -->
+    <div id="modal-add-scr" class="modal-backdrop">
+      <div class="modal-sheet" style="max-height:90vh"><div class="modal-handle"><div></div></div>
+        <div class="modal-body no-scrollbar">
+          <h2 id="add-scr-title" style="font-size:18px;font-weight:600;margin-bottom:16px">Leinwand hinzufügen</h2>
+          <form id="form-add-scr">
+            <input type="hidden" id="scr-edit-id">
+            <div class="form-grid">
+              <div class="form-group"><label>Name</label><input id="scr-name" type="text" required class="field-sm" placeholder="z.B. Hauptbühne"></div>
+              <div class="form-group"><label>Format</label>
+                <select id="scr-ar" class="field-sm">
+                  <option value="16:9">16:9</option><option value="16:10">16:10</option>
+                  <option value="4:3">4:3</option><option value="1:1">1:1</option>
+                  <option value="2.35:1">2.35:1 (Scope)</option><option value="custom">Benutzerdefiniert</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-grid">
+              <div class="form-group"><label>Breite (m)</label><input id="scr-width" type="number" step="0.01" min="0.1" required class="field-sm" placeholder="4.00"></div>
+              <div class="form-group"><label>Höhe (m)</label><input id="scr-height" type="number" step="0.01" min="0.1" class="field-sm" placeholder="auto"></div>
+            </div>
+            <div class="form-grid">
+              <div class="form-group"><label>Gain</label><input id="scr-gain" type="number" step="0.1" min="0.1" value="1.0" class="field-sm"></div>
+              <div class="form-group"><label>Material</label>
+                <select id="scr-material" class="field-sm">
+                  <option>Matte White</option><option>High Contrast Grey</option><option>Silver</option>
+                  <option>Flex White CI</option><option>Ambient Light Rejecting</option><option>Rückprojektion</option><option>Andere</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-actions">
+              <md-outlined-button type="button" id="btn-cancel-scr">Abbrechen</md-outlined-button>
+              <md-filled-button type="submit">Leinwand speichern</md-filled-button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROJECTOR PICKER MODAL -->
+    <div id="modal-picker" class="modal-backdrop">
+      <div class="modal-sheet" style="max-height:80vh"><div class="modal-handle"><div></div></div>
+        <div style="padding:0 20px 8px">
+          <h2 style="font-size:18px;font-weight:600;margin-bottom:8px">Projektor auswählen</h2>
+          <div class="search-wrap" style="margin-bottom:0">
+            <span class="material-icons-round icon">search</span>
+            <input id="picker-search" type="text" placeholder="Suchen…" class="search-input">
+          </div>
+        </div>
+        <div id="picker-list" class="no-scrollbar" style="flex:1;overflow-y:auto;padding:0 20px 24px"></div>
+      </div>
+    </div>
+
+    <!-- SCREEN PICKER MODAL -->
+    <div id="modal-scr-picker" class="modal-backdrop">
+      <div class="modal-sheet" style="max-height:80vh"><div class="modal-handle"><div></div></div>
+        <div style="padding:0 20px 8px">
+          <h2 style="font-size:18px;font-weight:600;margin-bottom:8px">Leinwand auswählen</h2>
+          <div class="search-wrap" style="margin-bottom:0">
+            <span class="material-icons-round icon">search</span>
+            <input id="scr-picker-search" type="text" placeholder="Suchen…" class="search-input">
+          </div>
+        </div>
+        <div id="scr-picker-list" class="no-scrollbar" style="flex:1;overflow-y:auto;padding:0 20px 24px"></div>
+      </div>
+    </div>
+
+  </div>
+
+
+<script>
+// ============================================================
+// PROJECTOR DATABASE
+// ============================================================
+const PROJECTORS=[
+{brand:'Barco',model:'UDX-4K40',resolution:'3840x2160',resName:'4K UHD',lumens:40000,tech:'Laser Phosphor',weight:77.5,lenses:[{name:'EN41',min:0.36,max:0.40},{name:'EN42',min:0.65,max:0.85},{name:'EN43',min:0.80,max:1.08},{name:'EN44',min:1.06,max:1.62},{name:'EN45',min:1.60,max:2.56},{name:'EN46',min:2.50,max:4.50},{name:'EN47',min:4.30,max:7.00}]},
+{brand:'Barco',model:'UDX-W40',resolution:'1920x1200',resName:'WUXGA',lumens:40000,tech:'Laser Phosphor',weight:77.5,lenses:[{name:'EN41',min:0.36,max:0.40},{name:'EN42',min:0.65,max:0.85},{name:'EN43',min:0.80,max:1.08},{name:'EN44',min:1.06,max:1.62},{name:'EN45',min:1.60,max:2.56},{name:'EN46',min:2.50,max:4.50},{name:'EN47',min:4.30,max:7.00}]},
+{brand:'Barco',model:'G62-W14',resolution:'1920x1200',resName:'WUXGA',lumens:14000,tech:'Laser Phosphor',weight:22,lenses:[{name:'EN51',min:0.36,max:0.40},{name:'EN52',min:0.75,max:0.95},{name:'EN53',min:0.95,max:1.22},{name:'EN54',min:1.22,max:1.53},{name:'EN55',min:1.52,max:2.92},{name:'EN56',min:2.90,max:5.50}]},
+{brand:'Christie',model:'CP4440-RGB',resolution:'3840x2160',resName:'4K',lumens:40000,tech:'Laser',weight:105,lenses:[{name:'0.65:1',min:0.60,max:0.72},{name:'0.80-1.02:1',min:0.80,max:1.02},{name:'1.02-1.36:1',min:1.02,max:1.36},{name:'1.20-1.77:1',min:1.20,max:1.77},{name:'1.70-2.87:1',min:1.70,max:2.87},{name:'2.80-4.60:1',min:2.80,max:4.60}]},
+{brand:'Christie',model:'M 4K25 RGB',resolution:'3840x2160',resName:'4K UHD',lumens:25000,tech:'Laser',weight:72,lenses:[{name:'0.38:1 UST',min:0.36,max:0.40},{name:'0.65-0.85:1',min:0.65,max:0.85},{name:'0.80-1.08:1',min:0.80,max:1.08},{name:'1.06-1.62:1',min:1.06,max:1.62},{name:'1.60-2.56:1',min:1.60,max:2.56},{name:'2.50-4.50:1',min:2.50,max:4.50}]},
+{brand:'Christie',model:'DHD1075-GS',resolution:'1920x1080',resName:'Full HD',lumens:10000,tech:'Laser Phosphor',weight:21.7,lenses:[{name:'0.75-0.95:1',min:0.75,max:0.95},{name:'0.95-1.22:1',min:0.95,max:1.22},{name:'1.22-1.53:1',min:1.22,max:1.53},{name:'1.52-2.89:1',min:1.52,max:2.89},{name:'2.90-5.50:1',min:2.90,max:5.50}]},
+{brand:'Christie',model:'Griffyn 4K32-RGB',resolution:'3840x2160',resName:'4K UHD',lumens:32000,tech:'Laser',weight:85,lenses:[{name:'0.38:1 UST',min:0.36,max:0.40},{name:'0.65-0.85:1',min:0.65,max:0.85},{name:'0.80-1.08:1',min:0.80,max:1.08},{name:'1.06-1.62:1',min:1.06,max:1.62},{name:'1.60-2.56:1',min:1.60,max:2.56},{name:'2.50-4.50:1',min:2.50,max:4.50}]},
+{brand:'Panasonic',model:'PT-RQ35K',resolution:'3840x2160',resName:'4K+',lumens:30500,tech:'Laser',weight:48,lenses:[{name:'ET-D3LEW200',min:0.48,max:0.55},{name:'ET-D75LE6',min:0.90,max:1.10},{name:'ET-D3LES20',min:1.06,max:1.41},{name:'ET-D3LET30',min:1.35,max:2.10},{name:'ET-D3LET40',min:2.00,max:3.14},{name:'ET-D3LEL50',min:3.00,max:5.20},{name:'ET-D3LEL100',min:5.00,max:8.60}]},
+{brand:'Panasonic',model:'PT-RZ21K',resolution:'1920x1200',resName:'WUXGA',lumens:21000,tech:'Laser',weight:46.5,lenses:[{name:'ET-D75LE5',min:0.48,max:0.55},{name:'ET-D75LE6',min:0.90,max:1.10},{name:'ET-D75LE20',min:1.06,max:1.41},{name:'ET-D75LE30',min:1.35,max:2.10},{name:'ET-D75LE40',min:2.00,max:3.14},{name:'ET-D75LE50',min:3.00,max:5.20}]},
+{brand:'Panasonic',model:'PT-MZ16K',resolution:'1920x1200',resName:'WUXGA',lumens:16000,tech:'Laser',weight:23.9,lenses:[{name:'ET-EMW200',min:0.48,max:0.55},{name:'ET-EMS600',min:0.90,max:1.10},{name:'ET-EMS650',min:1.06,max:1.41},{name:'ET-EMT700',min:1.35,max:2.10},{name:'ET-EMT750',min:2.00,max:3.14},{name:'ET-EML080',min:3.00,max:5.20}]},
+{brand:'Epson',model:'EB-PU2220B',resolution:'1920x1200',resName:'WUXGA',lumens:20000,tech:'Laser',weight:27.5,lenses:[{name:'ELPLR05',min:0.35,max:0.35},{name:'ELPLW08',min:0.65,max:0.78},{name:'ELPLU05',min:0.78,max:0.91},{name:'ELPLM15',min:0.90,max:1.23},{name:'ELPLM10',min:1.23,max:1.73},{name:'ELPLL10',min:1.73,max:2.73}]},
+{brand:'Epson',model:'EB-L30000U',resolution:'1920x1200',resName:'WUXGA',lumens:30000,tech:'Laser',weight:60,lenses:[{name:'ELPLR04',min:0.35,max:0.35},{name:'ELPLW06',min:0.65,max:0.78},{name:'ELPLU04',min:0.78,max:0.91},{name:'ELPLM09',min:0.90,max:1.23},{name:'ELPLM10',min:1.23,max:1.73},{name:'ELPLL08',min:1.73,max:2.73}]},
+{brand:'Sony',model:'SRX-R815P',resolution:'3840x2160',resName:'4K',lumens:15000,tech:'Laser',weight:50,lenses:[{name:'LKRL-A502',min:0.40,max:0.50},{name:'LKRL-A503',min:0.70,max:0.96},{name:'LKRL-Z115',min:1.00,max:1.39},{name:'LKRL-Z116',min:1.40,max:2.10},{name:'LKRL-Z117',min:2.10,max:3.90},{name:'LKRL-Z118',min:3.90,max:7.20}]},
+{brand:'Sony',model:'VPL-GTZ380',resolution:'3840x2160',resName:'4K SXRD',lumens:10000,tech:'Laser',weight:80,lenses:[{name:'VPLL-Z3009',min:0.80,max:1.02},{name:'VPLL-Z3024',min:1.27,max:2.73},{name:'VPLL-Z3032',min:2.50,max:4.50}]},
+{brand:'Digital Projection',model:'Titan Laser 37000',resolution:'1920x1200',resName:'WUXGA',lumens:37000,tech:'Laser Phosphor',weight:65,lenses:[{name:'EN41 UST',min:0.36,max:0.40},{name:'EN43',min:0.80,max:1.08},{name:'EN44',min:1.06,max:1.62},{name:'EN45',min:1.60,max:2.56},{name:'EN46',min:2.50,max:4.50},{name:'EN47',min:4.30,max:7.00}]},
+{brand:'Digital Projection',model:'M-Vision 21000',resolution:'1920x1200',resName:'WUXGA',lumens:21000,tech:'Laser Phosphor',weight:40,lenses:[{name:'0.75-0.93:1',min:0.75,max:0.93},{name:'1.16-1.49:1',min:1.16,max:1.49},{name:'1.50-2.12:1',min:1.50,max:2.12},{name:'2.12-3.18:1',min:2.12,max:3.18},{name:'3.18-4.84:1',min:3.18,max:4.84}]},
+// PT-DZ series
+{brand:'Panasonic',model:'PT-DZ570',resolution:'1920x1200',resName:'WUXGA',lumens:4500,tech:'Lamp',weight:9.6,lenses:[{name:'Standard Zoom',min:1.55,max:2.35}]},
+{brand:'Panasonic',model:'PT-DZ680',resolution:'1920x1200',resName:'WUXGA',lumens:6000,tech:'Lamp',weight:12.6,lenses:[{name:'Standard Zoom',min:1.55,max:2.35}]},
+{brand:'Panasonic',model:'PT-DZ6700',resolution:'1920x1200',resName:'WUXGA',lumens:6000,tech:'Lamp',weight:17.5,lenses:[{name:'ET-DLE085',min:0.80,max:1.00},{name:'ET-DLE150',min:1.30,max:1.90},{name:'ET-DLE250',min:2.50,max:3.50},{name:'ET-DLE350',min:3.50,max:5.40},{name:'ET-DLE450',min:4.50,max:7.50}]},
+{brand:'Panasonic',model:'PT-DZ6710',resolution:'1920x1200',resName:'WUXGA',lumens:6000,tech:'Lamp',weight:17.5,lenses:[{name:'ET-DLE085',min:0.80,max:1.00},{name:'ET-DLE150',min:1.30,max:1.90},{name:'ET-DLE250',min:2.50,max:3.50},{name:'ET-DLE350',min:3.50,max:5.40},{name:'ET-DLE450',min:4.50,max:7.50}]},
+{brand:'Panasonic',model:'PT-DZ770',resolution:'1920x1200',resName:'WUXGA',lumens:7000,tech:'Lamp',weight:17.2,lenses:[{name:'ET-DLE085',min:0.80,max:1.00},{name:'ET-DLE150',min:1.30,max:1.90},{name:'ET-DLE250',min:2.50,max:3.50},{name:'ET-DLE350',min:3.50,max:5.40},{name:'ET-DLE450',min:4.50,max:7.50}]},
+{brand:'Panasonic',model:'PT-DZ780',resolution:'1920x1200',resName:'WUXGA',lumens:7000,tech:'Lamp',weight:17.2,lenses:[{name:'ET-DLE085',min:0.80,max:1.00},{name:'ET-DLE150',min:1.30,max:1.90},{name:'ET-DLE250',min:2.50,max:3.50},{name:'ET-DLE350',min:3.50,max:5.40},{name:'ET-DLE450',min:4.50,max:7.50}]},
+{brand:'Panasonic',model:'PT-DZ870',resolution:'1920x1200',resName:'WUXGA',lumens:8500,tech:'Lamp',weight:17.2,lenses:[{name:'ET-DLE085',min:0.80,max:1.00},{name:'ET-DLE150',min:1.30,max:1.90},{name:'ET-DLE250',min:2.50,max:3.50},{name:'ET-DLE350',min:3.50,max:5.40},{name:'ET-DLE450',min:4.50,max:7.50}]},
+{brand:'Panasonic',model:'PT-DZ8700',resolution:'1920x1200',resName:'WUXGA',lumens:8500,tech:'Lamp',weight:25,lenses:[{name:'ET-DLE085',min:0.80,max:1.00},{name:'ET-DLE150',min:1.30,max:1.90},{name:'ET-DLE250',min:2.50,max:3.50},{name:'ET-DLE350',min:3.50,max:5.40},{name:'ET-DLE450',min:4.50,max:7.50}]},
+{brand:'Panasonic',model:'PT-DZ10K',resolution:'1920x1200',resName:'WUXGA',lumens:10000,tech:'Lamp',weight:27.8,lenses:[{name:'ET-D75LE5',min:0.48,max:0.55},{name:'ET-D75LE6',min:0.90,max:1.10},{name:'ET-D75LE20',min:1.06,max:1.41},{name:'ET-D75LE30',min:1.35,max:2.10},{name:'ET-D75LE40',min:2.00,max:3.14},{name:'ET-D75LE50',min:3.00,max:5.20}]},
+{brand:'Panasonic',model:'PT-DZ13K',resolution:'1920x1200',resName:'WUXGA',lumens:13000,tech:'Lamp',weight:28,lenses:[{name:'ET-D75LE5',min:0.48,max:0.55},{name:'ET-D75LE6',min:0.90,max:1.10},{name:'ET-D75LE20',min:1.06,max:1.41},{name:'ET-D75LE30',min:1.35,max:2.10},{name:'ET-D75LE40',min:2.00,max:3.14},{name:'ET-D75LE50',min:3.00,max:5.20}]},
+{brand:'Panasonic',model:'PT-DZ16K',resolution:'1920x1200',resName:'WUXGA',lumens:16000,tech:'Lamp',weight:43,lenses:[{name:'ET-D75LE5',min:0.48,max:0.55},{name:'ET-D75LE6',min:0.90,max:1.10},{name:'ET-D75LE20',min:1.06,max:1.41},{name:'ET-D75LE30',min:1.35,max:2.10},{name:'ET-D75LE40',min:2.00,max:3.14},{name:'ET-D75LE50',min:3.00,max:5.20}]},
+{brand:'Panasonic',model:'PT-DZ16K2',resolution:'1920x1200',resName:'WUXGA',lumens:16000,tech:'Lamp',weight:43,lenses:[{name:'ET-D75LE5',min:0.48,max:0.55},{name:'ET-D75LE6',min:0.90,max:1.10},{name:'ET-D75LE20',min:1.06,max:1.41},{name:'ET-D75LE30',min:1.35,max:2.10},{name:'ET-D75LE40',min:2.00,max:3.14},{name:'ET-D75LE50',min:3.00,max:5.20}]},
+{brand:'Panasonic',model:'PT-DZ21K',resolution:'1920x1200',resName:'WUXGA',lumens:20000,tech:'Lamp',weight:43,lenses:[{name:'ET-D75LE5',min:0.48,max:0.55},{name:'ET-D75LE6',min:0.90,max:1.10},{name:'ET-D75LE20',min:1.06,max:1.41},{name:'ET-D75LE30',min:1.35,max:2.10},{name:'ET-D75LE40',min:2.00,max:3.14},{name:'ET-D75LE50',min:3.00,max:5.20}]},
+{brand:'Panasonic',model:'PT-DZ21K2',resolution:'1920x1200',resName:'WUXGA',lumens:21000,tech:'Lamp',weight:43,lenses:[{name:'ET-D75LE5',min:0.48,max:0.55},{name:'ET-D75LE6',min:0.90,max:1.10},{name:'ET-D75LE20',min:1.06,max:1.41},{name:'ET-D75LE30',min:1.35,max:2.10},{name:'ET-D75LE40',min:2.00,max:3.14},{name:'ET-D75LE50',min:3.00,max:5.20}]},
+// PT-EZ series
+{brand:'Panasonic',model:'PT-EZ570',resolution:'1920x1200',resName:'WUXGA',lumens:5000,tech:'Lamp',weight:9.6,lenses:[{name:'Standard Zoom',min:1.55,max:2.35}]},
+{brand:'Panasonic',model:'PT-EZ580',resolution:'1920x1200',resName:'WUXGA',lumens:5400,tech:'Lamp',weight:12.6,lenses:[{name:'Standard Zoom',min:1.55,max:2.35}]},
+{brand:'Panasonic',model:'PT-EZ590',resolution:'1920x1200',resName:'WUXGA',lumens:5400,tech:'Lamp',weight:8.6,lenses:[{name:'Standard Zoom',min:1.55,max:2.35}]},
+{brand:'Panasonic',model:'PT-EZ770',resolution:'1920x1200',resName:'WUXGA',lumens:6500,tech:'Lamp',weight:17.2,lenses:[{name:'ET-DLE085',min:0.80,max:1.00},{name:'ET-DLE150',min:1.30,max:1.90},{name:'ET-DLE250',min:2.50,max:3.50},{name:'ET-DLE350',min:3.50,max:5.40},{name:'ET-DLE450',min:4.50,max:7.50}]},
+];
+
+// ============================================================
+// SCREEN DATABASE (AV Stumpfl MonoBlox32 — picture area, Flex White CI gain 1.02)
+// ============================================================
+const SCREENS=[
+// 4:3
+{name:'305x229 4:3',width:3.05,height:2.29,aspectRatio:'4:3',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
+{name:'345x259 4:3',width:3.45,height:2.59,aspectRatio:'4:3',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
+{name:'366x274 4:3',width:3.66,height:2.74,aspectRatio:'4:3',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
+{name:'406x305 4:3',width:4.06,height:3.05,aspectRatio:'4:3',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
+{name:'447x335 4:3',width:4.47,height:3.35,aspectRatio:'4:3',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
+{name:'488x366 4:3',width:4.88,height:3.66,aspectRatio:'4:3',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
+{name:'528x396 4:3',width:5.28,height:3.96,aspectRatio:'4:3',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
+{name:'569x427 4:3',width:5.69,height:4.27,aspectRatio:'4:3',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
+{name:'610x457 4:3',width:6.10,height:4.57,aspectRatio:'4:3',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
+{name:'711x533 4:3',width:7.11,height:5.33,aspectRatio:'4:3',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
+// 16:9
+{name:'332x187 16:9',width:3.32,height:1.87,aspectRatio:'16:9',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
+{name:'398x224 16:9',width:3.98,height:2.24,aspectRatio:'16:9',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
+{name:'443x249 16:9',width:4.43,height:2.49,aspectRatio:'16:9',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
+{name:'487x274 16:9',width:4.87,height:2.74,aspectRatio:'16:9',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
+{name:'531x299 16:9',width:5.31,height:2.99,aspectRatio:'16:9',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
+{name:'575x323 16:9',width:5.75,height:3.23,aspectRatio:'16:9',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
+{name:'620x349 16:9',width:6.20,height:3.49,aspectRatio:'16:9',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
+{name:'664x373 16:9',width:6.64,height:3.73,aspectRatio:'16:9',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
+// 16:10
+{name:'323x202 16:10',width:3.23,height:2.02,aspectRatio:'16:10',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
+{name:'366x229 16:10',width:3.66,height:2.29,aspectRatio:'16:10',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
+{name:'388x242 16:10',width:3.88,height:2.42,aspectRatio:'16:10',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
+{name:'431x269 16:10',width:4.31,height:2.69,aspectRatio:'16:10',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
+{name:'474x296 16:10',width:4.74,height:2.96,aspectRatio:'16:10',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
+{name:'517x323 16:10',width:5.17,height:3.23,aspectRatio:'16:10',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
+{name:'560x350 16:10',width:5.60,height:3.50,aspectRatio:'16:10',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
+{name:'603x377 16:10',width:6.03,height:3.77,aspectRatio:'16:10',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
+{name:'646x404 16:10',width:6.46,height:4.04,aspectRatio:'16:10',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let state = {
+  unit: localStorage.getItem('stitch-unit') || 'm',
+  customProjectors: JSON.parse(localStorage.getItem('stitch-custom') || '[]'),
+  customScreens: JSON.parse(localStorage.getItem('stitch-screens') || '[]'),
+  inventarProj: JSON.parse(localStorage.getItem('stitch-inv-proj') || '[]'),
+  inventarScr: JSON.parse(localStorage.getItem('stitch-inv-scr') || '[]'),
+  inventarLens: JSON.parse(localStorage.getItem('stitch-inv-lens') || '[]'),
+  libShowAll: localStorage.getItem('stitch-show-all') === 'true',
+  selectedProjectorId: null,
+  selectedScreenId: null,
+  calcMode: 'screen',
+  aspectRatio: '16:9',
+  libPanel: 'projectors',
+};
+
+function allProjectors() {
+  return [...PROJECTORS, ...state.customProjectors.map(p => ({...p, isCustom: true}))];
+}
+function allScreens() { return [...SCREENS.map(s=>({...s})), ...state.customScreens.map(s => ({...s, isCustom: true}))]; }
+function saveCustom() { localStorage.setItem('stitch-custom', JSON.stringify(state.customProjectors)); }
+function saveScreens() { localStorage.setItem('stitch-screens', JSON.stringify(state.customScreens)); }
+function saveUnit() { localStorage.setItem('stitch-unit', state.unit); }
+function saveInvProj() { localStorage.setItem('stitch-inv-proj', JSON.stringify(state.inventarProj)); }
+function saveInvScr() { localStorage.setItem('stitch-inv-scr', JSON.stringify(state.inventarScr)); }
+function saveInvLens() { localStorage.setItem('stitch-inv-lens', JSON.stringify(state.inventarLens)); }
+function saveShowAll() { localStorage.setItem('stitch-show-all', state.libShowAll); }
+
+function projKey(p) { return `${p.brand}::${p.model}`; }
+function scrKey(s) { return `${s.name}::${s.width}x${s.height}`; }
+function isProjOwned(p) { return state.inventarProj.includes(projKey(p)); }
+function isScrOwned(s) { return state.inventarScr.includes(scrKey(s)); }
+
+function toggleProjOwned(p) {
+  const k = projKey(p), i = state.inventarProj.indexOf(k);
+  if (i >= 0) state.inventarProj.splice(i, 1); else state.inventarProj.push(k);
+  saveInvProj();
+}
+function toggleScrOwned(s) {
+  const k = scrKey(s), i = state.inventarScr.indexOf(k);
+  if (i >= 0) state.inventarScr.splice(i, 1); else state.inventarScr.push(k);
+  saveInvScr();
+}
+
+function lensKey(p, l) { return `${p.brand}::${p.model}::${l.name}`; }
+function isLensOwned(p, l) { return state.inventarLens.includes(lensKey(p, l)); }
+function toggleLensOwned(p, l) {
+  const k = lensKey(p, l), i = state.inventarLens.indexOf(k);
+  if (i >= 0) state.inventarLens.splice(i, 1); else state.inventarLens.push(k);
+  saveInvLens();
+}
+
+// ============================================================
+// UTILITY
+// ============================================================
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+function fmt(n, d=2) { return Number(n).toFixed(d); }
+function toDisplay(m) { return state.unit==='ft'?m*3.28084:m; }
+function fromDisplay(v) { return state.unit==='ft'?v/3.28084:v; }
+function unitLabel() { return state.unit==='ft'?'ft':'m'; }
+function fmtLumens(l) { return (l/1000).toFixed(l%1000?1:0)+'K'; }
+function getAR() {
+  if (state.aspectRatio==='custom') return (parseFloat($('#ar-w').value)||16)/(parseFloat($('#ar-h').value)||9);
+  const [w,h]=state.aspectRatio.split(':').map(Number); return w/h;
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function switchTab(name) {
+  $$('.tab-content').forEach(el => el.classList.remove('active'));
+  $(`#tab-${name}`).classList.add('active');
+  $$('.nav-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab===name));
+  const fab=$('#btn-add-item');
+  if(fab) fab.style.display=name==='library'?'':'none';
+}
+$$('.nav-btn').forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
+
+// Sub-tabs
+$$('.sub-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    $$('.sub-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.libPanel = btn.dataset.panel;
+    $$('.sub-panel').forEach(p => p.classList.remove('active'));
+    $(`#panel-${btn.dataset.panel}`).classList.add('active');
+  });
+});
+
+// ============================================================
+// MODALS
+// ============================================================
+function openModal(id) { $(`#${id}`).classList.add('open'); }
+function closeModal(id) { $(`#${id}`).classList.remove('open'); }
+['modal-detail','modal-add','modal-picker','modal-scr-picker','modal-add-scr','modal-scr-detail'].forEach(id => {
+  $(`#${id}`).addEventListener('click', e => { if(e.target===$(`#${id}`)) closeModal(id); });
+});
+
+// ============================================================
+// FAB - context-aware
+// ============================================================
+$('#btn-add-item').addEventListener('click', () => {
+  if (state.libPanel === 'screens') {
+    resetScrForm(); $('#add-scr-title').textContent='Neue Leinwand'; $('#scr-edit-id').value='';
+    openModal('modal-add-scr');
+  } else {
+    resetAddForm(); $('#add-modal-title').textContent='Neuer Projektor'; $('#add-edit-id').value='';
+    openModal('modal-add');
+  }
+});
+
+// ============================================================
+// PROJECTOR LIBRARY
+// ============================================================
+function getBrands() { return [...new Set(allProjectors().map(p=>p.brand))].sort(); }
+
+function renderFilterChips() {
+  const c=$('#lib-filters'), brands=getBrands();
+  c.innerHTML=`<md-chip-set style="flex-wrap:nowrap;min-width:max-content">`
+    +`<md-filter-chip class="lib-chip" data-brand="inventar" label="Inventar" ${state.libShowAll?'':'selected'}></md-filter-chip>`
+    +`<md-filter-chip class="lib-chip" data-brand="all" label="Alle" ${state.libShowAll?'selected':''}></md-filter-chip>`
+    +brands.map(b=>`<md-filter-chip class="lib-chip" data-brand="${b}" label="${b}"></md-filter-chip>`).join('')
+    +`</md-chip-set>`;
+  c.querySelectorAll('md-filter-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      setTimeout(() => {
+        c.querySelectorAll('md-filter-chip').forEach(x => x.selected = x === chip);
+        renderLibrary();
+      }, 0);
+    });
+  });
+}
+
+function renderLibrary(skipAnim=false) {
+  const search=$('#lib-search').value.toLowerCase();
+  const ac=[...document.querySelectorAll('#lib-filters md-filter-chip')].find(c=>c.selected);
+  const brand=ac?ac.dataset.brand:(state.libShowAll?'all':'inventar');
+  let projs=allProjectors();
+  if(brand==='inventar') projs=projs.filter(p=>isProjOwned(p));
+  else if(brand!=='all') projs=projs.filter(p=>p.brand===brand);
+  if(search) projs=projs.filter(p=>`${p.brand} ${p.model} ${p.resName}`.toLowerCase().includes(search));
+  const list=$('#lib-list');
+  if(!projs.length){list.innerHTML=`<p class="empty">${brand==='inventar'?'Noch kein Inventar — tippe <b>+</b> um Geräte hinzuzufügen, oder aktiviere <em>Alle anzeigen</em> in den Einstellungen':'Keine Projektoren gefunden'}</p>`;return;}
+  list.innerHTML=projs.map((p,i)=>{
+    const idx=allProjectors().indexOf(p), owned=isProjOwned(p);
+    return `<div class="lib-card" style="${skipAnim?'animation:none;opacity:1;':''}animation-delay:${(i*0.06).toFixed(2)}s">
+      ${owned?'<div class="fav-strip"></div>':''}
+      <div class="icon-box"><span class="material-icons-round">videocam</span></div>
+      <div class="info" data-idx="${idx}" style="cursor:pointer">
+        <div class="name-row">
+          <span class="name">${p.brand} ${p.model}</span>
+          ${p.isCustom?'<span class="badge-custom">Eigen</span>':''}
+        </div>
+        <div class="meta">
+          <span>${p.resName}</span><span class="readout">${fmtLumens(p.lumens)} lm</span><span>${p.lenses.length} Lens${p.lenses.length!==1?'es':''}</span>
+        </div>
+      </div>
+      <div class="card-actions">
+        <button class="fav-btn ${owned?'is-fav':''}" data-inv-proj="${idx}" title="${owned?'Aus Inventar entfernen':'Zum Inventar hinzufügen'}">
+          <span class="material-icons-round">${owned?'check_circle':'add_circle_outline'}</span>
+        </button>
+        <span class="material-icons-round chevron" data-idx="${idx}" style="cursor:pointer">chevron_right</span>
+      </div>
+    </div>`;
+  }).join('');
+  list.querySelectorAll('.info[data-idx], .chevron[data-idx]').forEach(el=>{
+    el.addEventListener('click', ()=>showProjectorDetail(parseInt(el.dataset.idx)));
+  });
+  list.querySelectorAll('.fav-btn[data-inv-proj]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      e.stopPropagation();
+      const p=allProjectors()[parseInt(btn.dataset.invProj)];
+      const adding=!isProjOwned(p);
+      btn.classList.add(adding?'inv-btn-add':'inv-btn-remove');
+      setTimeout(()=>{ toggleProjOwned(p); renderLibrary(true); }, adding?320:260);
+    });
+  });
+}
+
+function showProjectorDetail(idx) {
+  const p=allProjectors()[idx]; if(!p)return;
+  const owned=isProjOwned(p);
+  $('#modal-detail-content').innerHTML=`
+    <div class="detail-header">
+      <div class="detail-icon"><span class="material-icons-round">videocam</span></div>
+      <div style="flex:1;min-width:0">
+        <div class="detail-title">${p.brand} ${p.model}</div>
+        <div class="detail-sub">${p.resName} · ${p.tech}</div>
+      </div>
+      <button class="fav-btn detail-fav ${owned?'is-fav':''}" onclick="toggleProjOwnedFromDetail(${idx},this)" style="width:40px;height:40px" title="${owned?'Aus Inventar entfernen':'Zum Inventar hinzufügen'}">
+        <span class="material-icons-round" style="font-size:24px">${owned?'check_circle':'add_circle_outline'}</span>
+      </button>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-box"><div class="stat-val primary">${fmtLumens(p.lumens)}</div><div class="stat-label">Lumen</div></div>
+      <div class="stat-box"><div class="stat-val">${p.resolution.replace('x','<span class="unit">×</span>')}</div><div class="stat-label">Auflösung</div></div>
+      <div class="stat-box"><div class="stat-val">${p.weight}<span class="unit">kg</span></div><div class="stat-label">Gewicht</div></div>
+    </div>
+    <div style="font-size:14px;font-weight:600;margin-bottom:8px">Verfügbare Objektive (${p.lenses.length})</div>
+    ${p.lenses.map((l,li)=>{const lo=isLensOwned(p,l);return `<div class="lens-row"><span class="l-name">${l.name}</span><span style="display:flex;align-items:center;gap:8px"><span class="l-range">${l.min}:1 — ${l.max}:1</span><button class="lens-fav-btn ${lo?'is-fav':''}" data-lens-idx="${li}" title="${lo?'Aus Inventar entfernen':'Zum Inventar hinzufügen'}"><span class="material-icons-round">${lo?'check_circle':'add_circle_outline'}</span></button></span></div>`;}).join('')}
+    <div class="detail-actions" style="margin-top:16px">
+      <button class="btn-primary" onclick="selectForCalc(${idx})">Im Rechner verwenden</button>
+      ${p.isCustom?`<button class="btn-icon edit" onclick="editCustom(${idx})"><span class="material-icons-round">edit</span></button>
+        <button class="btn-icon delete" onclick="deleteCustom(${idx})"><span class="material-icons-round">delete</span></button>`:''}
+    </div>`;
+  openModal('modal-detail');
+  $('#modal-detail-content').querySelectorAll('.lens-fav-btn[data-lens-idx]').forEach(btn=>{
+    btn.addEventListener('click',e=>{
+      e.stopPropagation();
+      const li=parseInt(btn.dataset.lensIdx);
+      toggleLensOwned(p,p.lenses[li]);
+      showProjectorDetail(idx);
+    });
+  });
+}
+
+window.toggleProjOwnedFromDetail=function(idx,btn){
+  const p=allProjectors()[idx];
+  const adding=!isProjOwned(p);
+  if(btn){ btn.classList.add(adding?'inv-btn-add':'inv-btn-remove'); }
+  setTimeout(()=>{ toggleProjOwned(p); showProjectorDetail(idx); renderLibrary(true); }, adding?320:260);
+};
+
+window.selectForCalc=function(idx){
+  state.selectedProjectorId=idx;
+  const p=allProjectors()[idx], label=$('#calc-proj-label');
+  label.textContent=`${p.brand} ${p.model}`; label.className='selected-text';
+  closeModal('modal-detail'); switchTab('calc'); recalculate();
+};
+
+// ============================================================
+// SCREEN LIBRARY
+// ============================================================
+function getScrBrands() { const brands=[...new Set(allScreens().filter(s=>s.brand).map(s=>s.brand))].sort(); return brands; }
+
+function renderScrFilterChips() {
+  const c=$('#scr-filters'), brands=getScrBrands();
+  c.innerHTML=`<md-chip-set style="flex-wrap:nowrap;min-width:max-content">`
+    +`<md-filter-chip class="scr-chip" data-scr-filter="inventar" label="Inventar" ${state.libShowAll?'':'selected'}></md-filter-chip>`
+    +`<md-filter-chip class="scr-chip" data-scr-filter="all" label="Alle" ${state.libShowAll?'selected':''}></md-filter-chip>`
+    +brands.map(b=>`<md-filter-chip class="scr-chip" data-scr-filter="brand:${b}" label="${b}"></md-filter-chip>`).join('')
+    +`<md-filter-chip class="scr-chip" data-scr-filter="ar:16:9" label="16:9"></md-filter-chip>`
+    +`<md-filter-chip class="scr-chip" data-scr-filter="ar:16:10" label="16:10"></md-filter-chip>`
+    +`<md-filter-chip class="scr-chip" data-scr-filter="ar:4:3" label="4:3"></md-filter-chip>`
+    +`<md-filter-chip class="scr-chip" data-scr-filter="custom" label="Eigen"></md-filter-chip>`
+    +`</md-chip-set>`;
+  c.querySelectorAll('md-filter-chip').forEach(chip=>{
+    chip.addEventListener('click',()=>{
+      setTimeout(() => {
+        c.querySelectorAll('md-filter-chip').forEach(x => x.selected = x === chip);
+        renderScreens();
+      }, 0);
+    });
+  });
+}
+
+function renderScreens(skipAnim=false) {
+  const search=$('#scr-search').value.toLowerCase();
+  const ac=[...document.querySelectorAll('#scr-filters md-filter-chip')].find(c=>c.selected);
+  const filter=ac?ac.dataset.scrFilter:(state.libShowAll?'all':'inventar');
+  let scrs=allScreens();
+  if(filter==='inventar') scrs=scrs.filter(s=>isScrOwned(s));
+  else if(filter==='custom') scrs=scrs.filter(s=>s.isCustom);
+  else if(filter&&filter.startsWith('brand:')) scrs=scrs.filter(s=>s.brand===filter.slice(6));
+  else if(filter&&filter.startsWith('ar:')) scrs=scrs.filter(s=>s.aspectRatio===filter.slice(3));
+  if(search) scrs=scrs.filter(s=>s.name.toLowerCase().includes(search));
+  const list=$('#scr-list');
+  if(!scrs.length){list.innerHTML=`<p class="empty">${filter==='inventar'?'Noch kein Inventar — tippe <b>+</b> um Leinwände hinzuzufügen, oder aktiviere <em>Alle anzeigen</em> in den Einstellungen':'Keine Leinwände gefunden'}</p>`;return;}
+  list.innerHTML=scrs.map((s,i)=>{
+    const globalIdx=allScreens().findIndex(x=>scrKey(x)===scrKey(s));
+    const owned=isScrOwned(s);
+    return `<div class="lib-card" style="${skipAnim?'animation:none;opacity:1;':''}animation-delay:${(i*0.06).toFixed(2)}s">
+      ${owned?'<div class="fav-strip"></div>':''}
+      <div class="icon-box"><span class="material-icons-round">monitor</span></div>
+      <div class="info" data-scr-idx="${globalIdx}" style="cursor:pointer">
+        <div class="name-row">
+          <span class="name">${s.name}</span>
+          ${s.isCustom?'<span class="badge-custom">Eigen</span>':s.brand?`<span class="badge-brand">${s.brand}</span>`:''}
+        </div>
+        <div class="meta">
+          <span>${s.aspectRatio}</span><span>${fmt(s.width,2)} × ${fmt(s.height,2)} m</span><span>Gain ${s.gain}</span>
+        </div>
+      </div>
+      <div class="card-actions">
+        <button class="fav-btn ${owned?'is-fav':''}" data-inv-scr="${globalIdx}" title="${owned?'Aus Inventar entfernen':'Zum Inventar hinzufügen'}">
+          <span class="material-icons-round">${owned?'check_circle':'add_circle_outline'}</span>
+        </button>
+        <span class="material-icons-round chevron" data-scr-idx="${globalIdx}" style="cursor:pointer">chevron_right</span>
+      </div>
+    </div>`;
+  }).join('');
+  list.querySelectorAll('.info[data-scr-idx], .chevron[data-scr-idx]').forEach(el=>{
+    el.addEventListener('click',()=>showScreenDetail(parseInt(el.dataset.scrIdx)));
+  });
+  list.querySelectorAll('.fav-btn[data-inv-scr]').forEach(btn=>{
+    btn.addEventListener('click',e=>{
+      e.stopPropagation();
+      const s=allScreens()[parseInt(btn.dataset.invScr)];
+      const adding=!isScrOwned(s);
+      btn.classList.add(adding?'inv-btn-add':'inv-btn-remove');
+      setTimeout(()=>{ toggleScrOwned(s); renderScreens(true); }, adding?320:260);
+    });
+  });
+}
+
+function showScreenDetail(i) {
+  const scrs=allScreens(), s=scrs[i]; if(!s)return;
+  const owned=isScrOwned(s);
+  const diag=Math.sqrt(s.width*s.width+s.height*s.height);
+  const customIdx=s.isCustom?i-SCREENS.length:-1;
+  $('#modal-scr-detail-content').innerHTML=`
+    <div class="detail-header">
+      <div class="detail-icon"><span class="material-icons-round">monitor</span></div>
+      <div style="flex:1;min-width:0">
+        <div class="detail-title">${s.name}</div>
+        <div class="detail-sub">${s.material} · ${s.aspectRatio}${s.brand?' · '+s.brand:''}</div>
+      </div>
+      <button class="fav-btn detail-fav ${owned?'is-fav':''}" onclick="toggleScrOwnedFromDetail(${i},this)" style="width:40px;height:40px" title="${owned?'Aus Inventar entfernen':'Zum Inventar hinzufügen'}">
+        <span class="material-icons-round" style="font-size:24px">${owned?'check_circle':'add_circle_outline'}</span>
+      </button>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-box"><div class="stat-val primary">${fmt(s.width,2)}<span class="unit">m</span></div><div class="stat-label">Breite</div></div>
+      <div class="stat-box"><div class="stat-val">${fmt(s.height,2)}<span class="unit">m</span></div><div class="stat-label">Höhe</div></div>
+      <div class="stat-box"><div class="stat-val">${fmt(diag,2)}<span class="unit">m</span></div><div class="stat-label">Diagonale</div></div>
+    </div>
+    <div class="stat-grid" style="grid-template-columns:1fr 1fr">
+      <div class="stat-box"><div class="stat-val">${s.gain}</div><div class="stat-label">Gain</div></div>
+      <div class="stat-box"><div class="stat-val" style="font-size:14px">${s.material}</div><div class="stat-label">Material</div></div>
+    </div>
+    ${s.isCustom?`<div class="detail-actions" style="margin-top:16px">
+      <button class="btn-icon edit" onclick="editScreen(${customIdx})"><span class="material-icons-round">edit</span></button>
+      <button class="btn-icon delete" onclick="deleteScreen(${customIdx})"><span class="material-icons-round">delete</span></button>
+    </div>`:''}`;
+  openModal('modal-scr-detail');
+}
+
+window.toggleScrOwnedFromDetail=function(i,btn){
+  const s=allScreens()[i];
+  const adding=!isScrOwned(s);
+  if(btn){ btn.classList.add(adding?'inv-btn-add':'inv-btn-remove'); }
+  setTimeout(()=>{ toggleScrOwned(s); showScreenDetail(i); renderScreens(true); }, adding?320:260);
+};
+
+window.editScreen=function(i){
+  const s=state.customScreens[i]; if(!s)return;
+  closeModal('modal-scr-detail');
+  setTimeout(()=>{
+    $('#add-scr-title').textContent='Leinwand bearbeiten';$('#scr-edit-id').value=String(i);
+    $('#scr-name').value=s.name; $('#scr-width').value=s.width; $('#scr-height').value=s.height;
+    $('#scr-gain').value=s.gain;
+    [...$('#scr-ar').options].forEach(o=>{if(o.value===s.aspectRatio)o.selected=true;});
+    [...$('#scr-material').options].forEach(o=>{if(o.textContent===s.material)o.selected=true;});
+    openModal('modal-add-scr');
+  },300);
+};
+
+window.deleteScreen=function(i){
+  if(!confirm('Leinwand wirklich löschen?'))return;
+  state.customScreens.splice(i,1); saveScreens();
+  closeModal('modal-scr-detail'); renderScreens(); renderSettingsScr();
+};
+
+// ============================================================
+// ADD/EDIT SCREEN
+// ============================================================
+function resetScrForm(){
+  $('#scr-name').value=''; $('#scr-width').value=''; $('#scr-height').value='';
+  $('#scr-gain').value='1.0'; $('#scr-ar').selectedIndex=0; $('#scr-material').selectedIndex=0;
+}
+$('#btn-cancel-scr').addEventListener('click',()=>closeModal('modal-add-scr'));
+
+// Auto-calc height from AR when width changes
+$('#scr-width').addEventListener('input',()=>{
+  const arVal=$('#scr-ar').value;
+  if(arVal!=='custom'){
+    const [aw,ah]=arVal.split(':').map(Number);
+    const w=parseFloat($('#scr-width').value);
+    if(w>0) $('#scr-height').value=fmt(w*ah/aw,2);
+  }
+});
+$('#scr-ar').addEventListener('change',()=>{
+  const arVal=$('#scr-ar').value, w=parseFloat($('#scr-width').value);
+  if(arVal!=='custom'&&w>0){
+    const [aw,ah]=arVal.split(':').map(Number);
+    $('#scr-height').value=fmt(w*ah/aw,2);
+  }
+});
+
+$('#form-add-scr').addEventListener('submit',e=>{
+  e.preventDefault();
+  const scr={
+    name:$('#scr-name').value.trim(),
+    width:parseFloat($('#scr-width').value),
+    height:parseFloat($('#scr-height').value)||parseFloat($('#scr-width').value)*9/16,
+    aspectRatio:$('#scr-ar').value==='custom'?'Benutzerdefiniert':$('#scr-ar').value,
+    gain:parseFloat($('#scr-gain').value)||1.0,
+    material:$('#scr-material').value,
+  };
+  const eid=$('#scr-edit-id').value;
+  if(eid!=='') state.customScreens[parseInt(eid)]=scr;
+  else state.customScreens.push(scr);
+  saveScreens(); closeModal('modal-add-scr'); renderScreens(); renderSettingsScr();
+});
+
+// ============================================================
+// CALCULATOR
+// ============================================================
+$('#calc-proj-btn').addEventListener('click',()=>{renderPicker();openModal('modal-picker');});
+
+// Screen picker for calculator
+$('#calc-scr-btn').addEventListener('click',()=>{renderScrPicker();openModal('modal-scr-picker');});
+$('#calc-scr-clear').addEventListener('click',()=>{
+  state.selectedScreenId=null;
+  $('#calc-scr-label').textContent='Leinwand auswählen…'; $('#calc-scr-label').className='placeholder';
+  $('#calc-scr-clear').style.display='none';
+  $('#calc-input').value='';
+  updateCalcInputVisibility(); recalculate();
+});
+
+function updateCalcInputVisibility(){
+  const hasScreen=state.selectedScreenId!==null;
+  const manualInput=$('#calc-manual-input');
+  const tabs=$('#calc-mode-tabs');
+  if(hasScreen){
+    // Leinwand gewählt → Breite kommt von der Leinwand, kein manuelles Eingeben nötig
+    if(tabs) tabs.style.display='none';
+    manualInput.style.display='none';
+  } else {
+    if(tabs) tabs.style.display='';
+    manualInput.style.display='';
+  }
+}
+
+function renderScrPicker(){
+  const search=$('#scr-picker-search').value.toLowerCase();
+  let scrs=allScreens();
+  if(!state.libShowAll) scrs=scrs.filter(s=>isScrOwned(s));
+  if(search) scrs=scrs.filter(s=>s.name.toLowerCase().includes(search));
+  scrs.sort((a,b)=>(isScrOwned(b)?1:0)-(isScrOwned(a)?1:0));
+  if(!scrs.length){$('#scr-picker-list').innerHTML=`<p class="empty" style="padding:16px 0">Kein Inventar vorhanden — füge zuerst Leinwände in der Bibliothek hinzu</p>`;return;}
+  $('#scr-picker-list').innerHTML=scrs.map(s=>{
+    const idx=allScreens().findIndex(x=>scrKey(x)===scrKey(s)), owned=isScrOwned(s);
+    return `<button class="picker-item ${state.selectedScreenId===idx?'selected':''}" data-idx="${idx}">
+      <span class="material-icons-round pi-icon">monitor</span>
+      <div class="pi-info">
+        <div class="pi-name">${owned?'<span class="material-icons-round" style="font-size:14px;color:var(--primary);vertical-align:-2px">check_circle</span> ':''}${s.name}</div>
+        <div class="pi-meta">${s.aspectRatio} · ${fmt(s.width,2)} × ${fmt(s.height,2)} m · Gain ${s.gain}</div>
+      </div>
+      ${s.isCustom?'<span class="badge-custom">Eigen</span>':s.brand?`<span class="badge-brand">${s.brand}</span>`:''}
+    </button>`;
+  }).join('');
+  $('#scr-picker-list').querySelectorAll('.picker-item').forEach(item=>{
+    item.addEventListener('click',()=>{
+      const idx=parseInt(item.dataset.idx);
+      state.selectedScreenId=idx;
+      const s=allScreens()[idx], label=$('#calc-scr-label');
+      label.textContent=s.name; label.className='selected-text';
+      $('#calc-scr-clear').style.display='';
+      closeModal('modal-scr-picker');
+      // Auto-fill width + AR from screen
+      const screenW=toDisplay(s.width);
+      $('#calc-input').value=fmt(screenW);
+      // Set aspect ratio
+      const arMatch=['16:9','16:10','4:3'].find(a=>a===s.aspectRatio);
+      if(arMatch){
+        state.aspectRatio=arMatch;
+        $$('.ar-chip').forEach(c=>c.selected=c.dataset.ar===arMatch);
+        $('#custom-ar').classList.remove('show');
+      } else {
+        state.aspectRatio='custom';
+        $$('.ar-chip').forEach(c=>c.selected=c.dataset.ar==='custom');
+        const arNum=s.width/s.height;
+        $('#ar-w').value=Math.round(arNum*100); $('#ar-h').value='100';
+        $('#custom-ar').classList.add('show');
+      }
+      // Leinwand gewählt → immer Screen-Modus, Tabs zurücksetzen
+      state.calcMode='screen';
+      const tabsEl=$('#calc-mode-tabs');
+      if(tabsEl && typeof tabsEl.activeTabIndex!=='undefined') tabsEl.activeTabIndex=0;
+      updateCalcInputVisibility(); recalculate();
+    });
+  });
+}
+$('#scr-picker-search').addEventListener('input',renderScrPicker);
+
+function renderPicker(){
+  const search=$('#picker-search').value.toLowerCase();
+  let projs=allProjectors();
+  if(!state.libShowAll) projs=projs.filter(p=>isProjOwned(p));
+  if(search) projs=projs.filter(p=>`${p.brand} ${p.model} ${p.resName}`.toLowerCase().includes(search));
+  // Sort inventory items first (relevant when libShowAll=true)
+  projs.sort((a,b)=>(isProjOwned(b)?1:0)-(isProjOwned(a)?1:0));
+  if(!projs.length){$('#picker-list').innerHTML=`<p class="empty" style="padding:16px 0">Kein Inventar vorhanden — füge zuerst Projektoren in der Bibliothek hinzu</p>`;return;}
+  $('#picker-list').innerHTML=projs.map(p=>{
+    const idx=allProjectors().indexOf(p), owned=isProjOwned(p);
+    return `<button class="picker-item ${state.selectedProjectorId===idx?'selected':''}" data-idx="${idx}">
+      <span class="material-icons-round pi-icon">videocam</span>
+      <div class="pi-info">
+        <div class="pi-name">${owned?'<span class="material-icons-round" style="font-size:14px;color:var(--primary);vertical-align:-2px">check_circle</span> ':''}${p.brand} ${p.model}</div>
+        <div class="pi-meta">${p.resName} · ${fmtLumens(p.lumens)} lm</div>
+      </div>
+      ${p.isCustom?'<span class="badge-custom">Eigen</span>':''}
+    </button>`;
+  }).join('');
+  $('#picker-list').querySelectorAll('.picker-item').forEach(item=>{
+    item.addEventListener('click',()=>{
+      const idx=parseInt(item.dataset.idx);
+      state.selectedProjectorId=idx;
+      const p=allProjectors()[idx],label=$('#calc-proj-label');
+      label.textContent=`${p.brand} ${p.model}`; label.className='selected-text';
+      closeModal('modal-picker'); recalculate();
+    });
+  });
+}
+$('#picker-search').addEventListener('input',renderPicker);
+
+customElements.whenDefined('md-tabs').then(()=>{
+  const tabs=$('#calc-mode-tabs');
+  tabs.addEventListener('change',()=>{
+    const idx=tabs.activeTabIndex||0;
+    state.calcMode=idx===0?'screen':'throw';
+    $('#calc-input-label').textContent=state.calcMode==='screen'?'Bildbreite':'Projektionsdistanz (Throw)';
+    if(state.calcMode==='throw') $('#calc-input').value='';
+    updateCalcInputVisibility();
+    recalculate();
+  });
+});
+
+customElements.whenDefined('md-filter-chip').then(()=>{
+  $$('.ar-chip').forEach(chip=>{
+    chip.addEventListener('click',()=>{
+      setTimeout(()=>{
+        $$('.ar-chip').forEach(c=>c.selected=c===chip);
+        state.aspectRatio=chip.dataset.ar;
+        $('#custom-ar').classList.toggle('show',chip.dataset.ar==='custom');
+        recalculate();
+      },0);
+    });
+  });
+  $$('.unit-chip').forEach(chip=>{
+    chip.addEventListener('click',()=>{
+      setTimeout(()=>{
+        $$('.unit-chip').forEach(c=>c.selected=c===chip);
+        state.unit=chip.dataset.unit;saveUnit();
+        $('#calc-unit-label').textContent=unitLabel();recalculate();
+      },0);
+    });
+  });
+  $$('.unit-chip').forEach(c=>c.selected=c.dataset.unit===state.unit);
+});
+
+$('#calc-input').addEventListener('input',recalculate);
+$('#ar-w').addEventListener('input',recalculate);
+$('#ar-h').addEventListener('input',recalculate);
+
+function recalculate(){
+  if(typeof updateResetBtn==='function') updateResetBtn();
+  const results=$('#calc-results'),noProj=$('#calc-no-proj');
+  if(state.selectedProjectorId===null){results.innerHTML='';noProj.style.display='block';return;}
+  noProj.style.display='none';
+  const p=allProjectors()[state.selectedProjectorId]; if(!p)return;
+  const unit=unitLabel();
+  // Determine screen width and aspect ratio
+  let sw, ar, sh, useScreen=false;
+  if(state.calcMode==='screen' && state.selectedScreenId!==null){
+    const scr=allScreens()[state.selectedScreenId];
+    if(scr){ sw=scr.width; sh=scr.height; ar=sw/sh; useScreen=true; }
+  }
+  if(state.calcMode==='screen' && !useScreen){
+    const val=parseFloat($('#calc-input').value);
+    if(!val||val<=0){results.innerHTML=`<div class="empty" style="padding:16px 0">Bitte Bildbreite eingeben</div>`;return;}
+    sw=fromDisplay(val); ar=getAR(); sh=sw/ar;
+  }
+  if(state.calcMode==='throw'){
+    const val=parseFloat($('#calc-input').value);
+    if(!val||val<=0){results.innerHTML=`<div class="empty" style="padding:16px 0">Bitte Projektionsdistanz eingeben</div>`;return;}
+  }
+  const sortedLenses=[...p.lenses].sort((a,b)=>(isLensOwned(p,b)?1:0)-(isLensOwned(p,a)?1:0));
+  if(state.calcMode==='screen'){
+    const diag=Math.sqrt(sw*sw+sh*sh);
+    const scrLabel=useScreen?allScreens()[state.selectedScreenId].name:'';
+    results.innerHTML=`<div class="screen-info"><div class="si-label">Bildmaße${scrLabel?' — '+scrLabel:''}</div><div class="si-value">${fmt(toDisplay(sw))} × ${fmt(toDisplay(sh))} ${unit} <span class="dim">(${fmt(toDisplay(diag))} ${unit} Diagonale)</span></div></div>
+      <div class="label mb-2">Ergebnisse</div>
+      ${sortedLenses.map((l,i)=>{const lo=isLensOwned(p,l);return `<div class="result-card ${lo?'is-fav-lens':''}" style="animation-delay:${(i*0.06).toFixed(2)}s"><div class="lens-header"><span class="lens-name">${l.name}${lo?' <span class="fav-badge"><span class="material-icons-round">check_circle</span> Inventar</span>':''}</span><span class="lens-ratio">${l.min}:1 — ${l.max}:1</span></div><div class="lens-val"><span class="material-icons-round">straighten</span><span>${fmt(toDisplay(l.min*sw))} — ${fmt(toDisplay(l.max*sw))} ${unit}</span></div></div>`;}).join('')}`;
+  } else {
+    const td=fromDisplay(parseFloat($('#calc-input').value));
+    results.innerHTML=`<div class="label mb-2">Ergebnisse</div>
+      ${sortedLenses.map((l,i)=>{const maxW=td/l.min,minW=td/l.max,ar=getAR(),lo=isLensOwned(p,l);
+        return `<div class="result-card ${lo?'is-fav-lens':''}" style="animation-delay:${(i*0.06).toFixed(2)}s"><div class="lens-header"><span class="lens-name">${l.name}${lo?' <span class="fav-badge"><span class="material-icons-round">check_circle</span> Inventar</span>':''}</span><span class="lens-ratio">${l.min}:1 — ${l.max}:1</span></div><div class="lens-val"><span class="material-icons-round">aspect_ratio</span><span>Breite: ${fmt(toDisplay(minW))} — ${fmt(toDisplay(maxW))} ${unit}</span></div><div class="lens-sub"><span class="material-icons-round">height</span><span>Höhe: ${fmt(toDisplay(minW/ar))} — ${fmt(toDisplay(maxW/ar))} ${unit}</span></div></div>`;
+      }).join('')}`;
+  }
+}
+
+
+// ============================================================
+// SETTINGS
+// ============================================================
+$('#calc-unit-label').textContent=unitLabel();
+
+function renderSettingsCustom(){
+  const list=$('#settings-custom-list'),no=$('#settings-no-custom');
+  if(!state.customProjectors.length){list.innerHTML='';no.style.display='block';return;}
+  no.style.display='none';
+  list.innerHTML=state.customProjectors.map((p,i)=>`<div class="settings-item"><div class="si-info"><div class="si-name">${p.brand} ${p.model}</div><div class="si-meta">${p.resName} · ${p.lenses.length} Objektiv${p.lenses.length!==1?'e':''}</div></div><button class="si-btn" onclick="editCustomFromSettings(${i})"><span class="material-icons-round" style="font-size:18px">edit</span></button><button class="si-btn danger" onclick="deleteCustomFromSettings(${i})"><span class="material-icons-round" style="font-size:18px">delete</span></button></div>`).join('');
+}
+
+function renderSettingsScr(){
+  const list=$('#settings-custom-scr'),no=$('#settings-no-scr');
+  if(!state.customScreens.length){list.innerHTML='';no.style.display='block';return;}
+  no.style.display='none';
+  list.innerHTML=state.customScreens.map((s,i)=>`<div class="settings-item"><div class="si-info"><div class="si-name">${s.name}</div><div class="si-meta">${s.aspectRatio} · ${fmt(s.width,2)}×${fmt(s.height,2)}m</div></div><button class="si-btn" onclick="editScreen(${i})"><span class="material-icons-round" style="font-size:18px">edit</span></button><button class="si-btn danger" onclick="deleteScreenFromSettings(${i})"><span class="material-icons-round" style="font-size:18px">delete</span></button></div>`).join('');
+}
+
+window.editCustomFromSettings=function(i){editCustom(PROJECTORS.length+i);};
+window.deleteCustomFromSettings=function(i){if(!confirm('Projektor wirklich löschen?'))return;state.customProjectors.splice(i,1);saveCustom();renderSettingsCustom();renderFilterChips();renderLibrary();};
+window.deleteScreenFromSettings=function(i){if(!confirm('Leinwand wirklich löschen?'))return;state.customScreens.splice(i,1);saveScreens();renderSettingsScr();renderScreens();};
+
+// ============================================================
+// ADD/EDIT PROJECTOR
+// ============================================================
+let editingLenses=[];
+$('#btn-cancel-add').addEventListener('click',()=>closeModal('modal-add'));
+$('#btn-add-lens').addEventListener('click',()=>{editingLenses.push({name:'',min:0.8,max:1.2});renderLensFields();});
+
+function resetAddForm(){
+  $('#add-brand').value='';$('#add-model').value='';$('#add-resolution').selectedIndex=0;
+  $('#add-lumens').value='';$('#add-tech').selectedIndex=0;$('#add-weight').value='';
+  editingLenses=[{name:'',min:0.8,max:1.2}];renderLensFields();
+}
+
+function renderLensFields(){
+  $('#lens-list').innerHTML=editingLenses.map((l,i)=>`<div class="lens-field"><div class="lens-field-header"><span>Objektiv ${i+1}</span>${editingLenses.length>1?`<button type="button" onclick="removeLens(${i})"><span class="material-icons-round" style="font-size:16px">close</span></button>`:''}</div><input type="text" placeholder="Objektivname" value="${l.name}" onchange="editingLenses[${i}].name=this.value" class="field-sm" style="margin-bottom:8px"><div class="lf-row"><div><label>Min. Verhältnis</label><input type="number" step="0.01" min="0.1" value="${l.min}" onchange="editingLenses[${i}].min=parseFloat(this.value)" class="field-sm"></div><div><label>Max. Verhältnis</label><input type="number" step="0.01" min="0.1" value="${l.max}" onchange="editingLenses[${i}].max=parseFloat(this.value)" class="field-sm"></div></div></div>`).join('');
+}
+window.removeLens=function(i){editingLenses.splice(i,1);renderLensFields();};
+
+window.editCustom=function(globalIdx){
+  const ci=globalIdx-PROJECTORS.length,p=state.customProjectors[ci]; if(!p)return;
+  closeModal('modal-detail');
+  setTimeout(()=>{
+    $('#add-modal-title').textContent='Projektor bearbeiten';$('#add-edit-id').value=String(ci);
+    $('#add-brand').value=p.brand;$('#add-model').value=p.model;
+    [...$('#add-resolution').options].forEach(o=>{if(o.value===`${p.resolution}|${p.resName}`)o.selected=true;});
+    $('#add-lumens').value=p.lumens;
+    [...$('#add-tech').options].forEach(o=>{if(o.textContent===p.tech)o.selected=true;});
+    $('#add-weight').value=p.weight||'';
+    editingLenses=p.lenses.length?p.lenses.map(l=>({...l})):[{name:'',min:0.8,max:1.2}];
+    renderLensFields();openModal('modal-add');
+  },300);
+};
+window.deleteCustom=function(globalIdx){
+  if(!confirm('Projektor wirklich löschen?'))return;
+  state.customProjectors.splice(globalIdx-PROJECTORS.length,1);saveCustom();closeModal('modal-detail');
+  renderFilterChips();renderLibrary();renderSettingsCustom();
+};
+
+$('#form-add').addEventListener('submit',e=>{
+  e.preventDefault();
+  const [resolution,resName]=$('#add-resolution').value.split('|');
+  const proj={brand:$('#add-brand').value.trim(),model:$('#add-model').value.trim(),resolution,resName,lumens:parseInt($('#add-lumens').value),tech:$('#add-tech').value,weight:parseFloat($('#add-weight').value)||0,lenses:editingLenses.filter(l=>l.name.trim()).map(l=>({name:l.name.trim(),min:parseFloat(l.min)||0.8,max:parseFloat(l.max)||1.2}))};
+  const eid=$('#add-edit-id').value;
+  if(eid!=='')state.customProjectors[parseInt(eid)]=proj;else state.customProjectors.push(proj);
+  saveCustom();closeModal('modal-add');renderFilterChips();renderLibrary();renderSettingsCustom();
+});
+
+// ============================================================
+// INVENTORY ANIMATIONS
+// ============================================================
+(function(){
+  const style=document.createElement('style');
+  style.textContent=`
+    @keyframes invAdd { 0%{transform:scale(1)} 30%{transform:scale(1.55)} 60%{transform:scale(0.85)} 80%{transform:scale(1.12)} 100%{transform:scale(1)} }
+    @keyframes invRemove { 0%{transform:scale(1);opacity:1} 35%{transform:scale(0.45);opacity:0.3} 100%{transform:scale(1);opacity:1} }
+    .inv-btn-add .material-icons-round { animation: invAdd 0.32s cubic-bezier(0.34,1.56,0.64,1) both; color: var(--primary); }
+    .inv-btn-remove .material-icons-round { animation: invRemove 0.26s ease both; }
+  `;
+  document.head.appendChild(style);
+})();
+
+// ============================================================
+// CALCULATOR RESET
+// ============================================================
+function updateResetBtn(){
+  const active=state.selectedProjectorId!==null||state.selectedScreenId!==null||$('#calc-input').value!=='';
+  $('#btn-calc-reset').style.display=active?'':'none';
+}
+$('#btn-calc-reset').addEventListener('click',()=>{
+  state.selectedProjectorId=null;
+  state.selectedScreenId=null;
+  state.calcMode='screen';
+  $('#calc-proj-label').textContent='Projektor auswählen…'; $('#calc-proj-label').className='placeholder';
+  $('#calc-scr-label').textContent='Leinwand auswählen…'; $('#calc-scr-label').className='placeholder';
+  $('#calc-scr-clear').style.display='none';
+  $('#calc-input').value='';
+  const tabsEl=$('#calc-mode-tabs');
+  if(tabsEl && typeof tabsEl.activeTabIndex!=='undefined') tabsEl.activeTabIndex=0;
+  $('#calc-input-label').textContent='Bildbreite';
+  updateCalcInputVisibility();
+  recalculate();
+  updateResetBtn();
+});
+
+// ============================================================
+// LIBRARY SHOW-ALL TOGGLE
+// ============================================================
+(function(){
+  const btn=$('#toggle-show-all');
+  function updateToggle(){ btn.classList.toggle('on', state.libShowAll); }
+  updateToggle();
+  btn.addEventListener('click',()=>{
+    state.libShowAll=!state.libShowAll;
+    saveShowAll();
+    updateToggle();
+    renderFilterChips();
+    renderScrFilterChips();
+    renderLibrary();
+    renderScreens();
+  });
+})();
+
+// ============================================================
+// INIT
+// ============================================================
+renderFilterChips(); renderLibrary(); renderScrFilterChips(); renderScreens();
+renderSettingsCustom(); renderSettingsScr();
+$('#lib-search').addEventListener('input',renderLibrary);
+$('#scr-search').addEventListener('input',renderScreens);
+// FAB hidden by default (calc is active tab)
+$('#btn-add-item').style.display='none';
+$('#calc-unit-label').textContent=unitLabel();
+
+if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Projection Planner: Plan Screen</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "bg":        "#090d12",
+        "s1":        "#0f1823",
+        "s2":        "#162030",
+        "s3":        "#1e2d3f",
+        "primary":   "#f5a623",
+        "secondary": "#1e8eb4",
+      },
+      fontFamily: {
+        "display": ["'Exo 2'", "sans-serif"],
+        "mono":    ["'Share Tech Mono'", "monospace"],
+      },
+      borderRadius: {
+        "DEFAULT": "0.25rem",
+        "md":  "0.375rem",
+        "lg":  "0.5rem",
+        "xl":  "0.75rem",
+        "2xl": "1rem",
+        "full":"9999px",
+      },
+    },
+  },
+}
+</script>
+<style>
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  body { min-height: max(884px, 100dvh); }
+
+  .readout { font-family: 'Share Tech Mono', monospace; letter-spacing: 0.05em; }
+  .glow    { box-shadow: 0 0 0 1px rgba(245,166,35,0.4), 0 0 16px rgba(245,166,35,0.12); }
+
+  /* Scanline texture */
+  .scanlines {
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.04) 2px,
+      rgba(0,0,0,0.04) 4px
+    );
+  }
+
+  /* Line-style input: amber bottom border on focus */
+  .line-input {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid rgba(255,255,255,0.08);
+    outline: none;
+    border-radius: 0;
+    transition: border-bottom-color 0.15s ease;
+  }
+  .line-input:focus {
+    border-bottom-color: #f5a623;
+  }
+
+  /* ── Animation Keyframes ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes slideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+  @keyframes fillBar {
+    from { width: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>
+</head>
+<body class="bg-bg font-display text-[#e8edf2] min-h-screen flex justify-center selection:bg-primary/30 antialiased">
+
+<div class="w-full max-w-md bg-bg min-h-screen relative flex flex-col pb-[290px]">
+
+  <!-- ── Header ─────────────────────────────────────────── -->
+  <header class="px-5 pt-12 pb-4 flex justify-between items-center bg-bg z-20 sticky top-0 border-b border-white/5">
+    <div>
+      <h1 class="text-[20px] font-extrabold tracking-tight uppercase leading-none">Plan Projection</h1>
+      <p class="readout text-[10px] text-[#6b7f94] mt-1.5">Setup #042 · Main Hall</p>
+    </div>
+    <button class="w-9 h-9 bg-s2 border border-white/6 flex items-center justify-center text-[#6b7f94] hover:text-primary transition-colors">
+      <span class="material-icons-round text-[18px]">settings</span>
+    </button>
+  </header>
+
+  <!-- ── Equipment Context ──────────────────────────────── -->
+  <div class="px-5 pb-4 pt-3 sticky top-[80px] z-10 bg-gradient-to-b from-bg via-bg to-transparent">
+    <div class="flex gap-2 overflow-x-auto no-scrollbar">
+
+      <!-- Projector chip -->
+      <div class="flex-none flex items-center gap-2 bg-s2 border border-white/6 py-1.5 px-2 pr-3"
+           style="opacity:0; animation: fadeUp 0.3s ease both; animation-delay: 0.15s;">
+        <div class="w-6 h-6 bg-primary/15 flex items-center justify-center flex-shrink-0">
+          <span class="material-icons-round text-primary text-[14px]">videocam</span>
+        </div>
+        <div>
+          <p class="text-[8px] font-mono uppercase tracking-wider text-[#6b7f94] leading-none mb-0.5">Projector</p>
+          <p class="text-[11px] font-semibold whitespace-nowrap leading-none">PT-RZ21K</p>
+        </div>
+        <button class="text-[#6b7f94]/40 hover:text-[#6b7f94] ml-1 transition-colors leading-none">
+          <span class="material-icons-round text-[14px]">close</span>
+        </button>
+      </div>
+
+      <!-- Lens chip -->
+      <div class="flex-none flex items-center gap-2 bg-s2 border border-white/6 py-1.5 px-2 pr-3"
+           style="opacity:0; animation: fadeUp 0.3s ease both; animation-delay: 0.22s;">
+        <div class="w-6 h-6 bg-primary/15 flex items-center justify-center flex-shrink-0">
+          <span class="material-icons-round text-primary text-[14px]">camera</span>
+        </div>
+        <div>
+          <p class="text-[8px] font-mono uppercase tracking-wider text-[#6b7f94] leading-none mb-0.5">Lens</p>
+          <p class="text-[11px] font-semibold whitespace-nowrap leading-none">ET-D75LE20 (1.7–2.4:1)</p>
+        </div>
+        <button class="text-[#6b7f94]/40 hover:text-[#6b7f94] ml-1 transition-colors leading-none">
+          <span class="material-icons-round text-[14px]">close</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Main Content ────────────────────────────────────── -->
+  <main class="px-5 space-y-6 flex-grow">
+
+    <!-- Calculation Mode Toggle (angular) -->
+    <div>
+      <p class="text-[9px] font-mono uppercase tracking-[0.15em] text-[#6b7f94] mb-2">Mode</p>
+      <div class="flex border border-white/6">
+        <div class="relative flex-1">
+          <div class="absolute left-0 inset-y-0 w-[2px] bg-primary"></div>
+          <button class="w-full py-3 pl-4 pr-3 text-[12px] font-bold text-primary bg-primary/8 uppercase tracking-wider text-center">Target Image</button>
+        </div>
+        <div class="flex-1 border-l border-white/6">
+          <button class="w-full py-3 px-4 text-[12px] font-medium text-[#6b7f94] hover:text-[#e8edf2] uppercase tracking-wider text-center transition-colors">Distance</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Aspect Ratio -->
+    <div>
+      <label class="text-[9px] font-mono uppercase tracking-[0.15em] text-[#6b7f94] mb-2 block">Aspect Ratio</label>
+      <div class="flex gap-2 overflow-x-auto no-scrollbar">
+        <div class="relative flex-none">
+          <div class="absolute left-0 inset-y-0 w-[2px] bg-primary"></div>
+          <button class="pl-3 pr-3 py-2 text-[12px] font-bold text-primary bg-primary/8 border border-primary/25 uppercase tracking-wider">16:9</button>
+        </div>
+        <button class="flex-none px-3 py-2 bg-s2 text-[#6b7f94] border border-white/6 text-[12px] font-medium uppercase tracking-wider hover:border-primary/25 hover:text-[#e8edf2] transition-colors">16:10</button>
+        <button class="flex-none px-3 py-2 bg-s2 text-[#6b7f94] border border-white/6 text-[12px] font-medium uppercase tracking-wider hover:border-primary/25 hover:text-[#e8edf2] transition-colors">4:3</button>
+        <button class="flex-none px-3 py-2 bg-s2 text-[#6b7f94] border border-white/6 text-[12px] font-medium uppercase tracking-wider hover:border-primary/25 hover:text-[#e8edf2] transition-colors">Custom</button>
+      </div>
+    </div>
+
+    <!-- Dimensions (line-input style) -->
+    <div class="grid grid-cols-2 gap-5">
+      <div>
+        <label class="text-[9px] font-mono uppercase tracking-[0.15em] text-[#6b7f94] block mb-2">Width</label>
+        <div class="relative">
+          <input class="line-input w-full py-2 pr-8 readout text-[32px] text-[#e8edf2] leading-none placeholder-s3"
+                 type="number" value="6.75"/>
+          <span class="absolute right-0 bottom-2 text-sm text-[#6b7f94] font-mono">m</span>
+        </div>
+      </div>
+      <div>
+        <label class="text-[9px] font-mono uppercase tracking-[0.15em] text-[#6b7f94] block mb-2">Height</label>
+        <div class="relative">
+          <input class="line-input w-full py-2 pr-8 readout text-[32px] text-[#e8edf2] leading-none placeholder-s3"
+                 type="number" value="3.80"/>
+          <span class="absolute right-0 bottom-2 text-sm text-[#6b7f94] font-mono">m</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Projection Mode (angular two-button) -->
+    <div>
+      <p class="text-[9px] font-mono uppercase tracking-[0.15em] text-[#6b7f94] mb-2">Projection Mode</p>
+      <div class="flex items-center gap-3 bg-s2 border border-white/6 p-3">
+        <span class="material-icons-round text-[#6b7f94] text-[18px]">flip_camera_android</span>
+        <div class="flex border border-white/6 ml-auto">
+          <div class="relative">
+            <div class="absolute left-0 inset-y-0 w-[2px] bg-primary"></div>
+            <button class="pl-3 pr-3 py-1.5 text-[11px] font-bold text-primary bg-primary/8 uppercase tracking-wider">Front</button>
+          </div>
+          <div class="border-l border-white/6">
+            <button class="px-3 py-1.5 text-[11px] font-medium text-[#6b7f94] uppercase tracking-wider hover:text-[#e8edf2] transition-colors">Rear</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Beam Visualizer (technical schematic) -->
+    <div>
+      <p class="text-[9px] font-mono uppercase tracking-[0.15em] text-[#6b7f94] mb-2">Beam Preview</p>
+      <div class="relative w-full h-36 bg-s2 border border-white/6 overflow-hidden"
+           style="background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 10px 10px;">
+
+        <!-- Projector body -->
+        <div class="absolute left-4 top-1/2 -translate-y-1/2">
+          <div class="w-6 h-4 bg-s3 border border-white/15 relative">
+            <!-- Amber lens indicator -->
+            <div class="absolute -right-1.5 top-1/2 -translate-y-1/2 w-1.5 h-3 bg-primary"
+                 style="clip-path: polygon(0 10%, 100% 25%, 100% 75%, 0 90%);"></div>
+          </div>
+        </div>
+
+        <!-- Beam + screen SVG -->
+        <svg class="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 300 144" xmlns="http://www.w3.org/2000/svg">
+          <!-- Beam fill -->
+          <polygon points="52,48 52,96 270,16 270,128" fill="rgba(245,166,35,0.05)"
+                   style="opacity:0; animation: fadeIn 0.4s ease both; animation-delay: 0.3s;"/>
+          <!-- Beam edges (dashed) -->
+          <line x1="52" y1="48" x2="270" y2="16" stroke="rgba(245,166,35,0.25)" stroke-width="0.8" stroke-dasharray="4,5"
+                style="opacity:0; animation: fadeIn 0.4s ease both; animation-delay: 0.35s;"/>
+          <line x1="52" y1="96" x2="270" y2="128" stroke="rgba(245,166,35,0.25)" stroke-width="0.8" stroke-dasharray="4,5"
+                style="opacity:0; animation: fadeIn 0.4s ease both; animation-delay: 0.4s;"/>
+          <!-- Screen bar -->
+          <rect x="268" y="12" width="3" height="120" fill="rgba(245,166,35,0.85)"
+                style="opacity:0; animation: fadeIn 0.4s ease both; animation-delay: 0.45s;"/>
+          <!-- Dimension group -->
+          <g style="opacity:0; animation: fadeIn 0.4s ease both; animation-delay: 0.6s;">
+            <line x1="52" y1="136" x2="268" y2="136" stroke="rgba(107,127,148,0.4)" stroke-width="0.7"/>
+            <line x1="52" y1="131" x2="52" y2="141"   stroke="rgba(107,127,148,0.4)" stroke-width="0.7"/>
+            <line x1="268" y1="131" x2="268" y2="141" stroke="rgba(107,127,148,0.4)" stroke-width="0.7"/>
+            <text x="160" y="143" text-anchor="middle" fill="rgba(107,127,148,0.75)" font-family="Share Tech Mono,monospace" font-size="8">12.50 m</text>
+          </g>
+        </svg>
+
+        <!-- Corner label -->
+        <div class="absolute top-2 right-2">
+          <span class="text-[8px] font-mono text-[#6b7f94]/60 uppercase tracking-wider">Schematic</span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+</div>
+
+<!-- ── Result Sheet (fixed instrument panel) ──────────────── -->
+<div class="fixed bottom-0 left-0 right-0 z-50 flex justify-center pointer-events-none">
+  <div class="w-full max-w-md bg-s1 border-t border-primary/20 pointer-events-auto scanlines"
+       style="opacity:0; animation: slideUp 0.5s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 0.4s;">
+
+    <!-- Pull handle -->
+    <div class="flex justify-center pt-3 pb-1">
+      <div class="w-8 h-[3px] bg-white/12 rounded-full"></div>
+    </div>
+
+    <div class="px-5 pt-3 pb-8">
+
+      <!-- THROW DISTANCE hero -->
+      <div class="mb-4">
+        <p class="text-[9px] font-mono uppercase tracking-[0.2em] text-[#6b7f94] mb-1">Throw Distance</p>
+        <div class="flex items-baseline gap-2">
+          <span id="throw-val" class="readout text-[56px] text-primary leading-none font-normal">0.00</span>
+          <span class="text-lg text-[#6b7f94] font-mono">m</span>
+          <span class="ml-auto text-[9px] font-mono uppercase tracking-wider text-[#39d98a] bg-[#39d98a]/10 border border-[#39d98a]/25 px-2 py-0.5 self-center">OPTIMAL</span>
+        </div>
+      </div>
+
+      <!-- Secondary stats -->
+      <div class="grid grid-cols-2 gap-4 mb-4">
+        <div>
+          <p class="text-[9px] font-mono uppercase tracking-[0.15em] text-[#6b7f94] mb-1">Throw Ratio</p>
+          <p class="readout text-[18px] text-[#e8edf2]">1.85:1</p>
+        </div>
+        <div>
+          <p class="text-[9px] font-mono uppercase tracking-[0.15em] text-[#6b7f94] mb-1">Zoom Usage</p>
+          <div class="flex items-center gap-2">
+            <p class="readout text-[18px] text-[#e8edf2]">45%</p>
+            <div class="h-[3px] flex-1 bg-s3">
+              <div class="h-full bg-primary" style="width:45%; animation: fillBar 0.6s ease both; animation-delay: 1.2s;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Warning -->
+      <div class="flex items-start gap-3 bg-primary/10 border border-primary/20 p-3"
+           style="opacity:0; animation: fadeUp 0.4s ease both; animation-delay: 1.5s;">
+        <span class="material-icons-round text-primary text-[18px] mt-0.5 flex-shrink-0">warning_amber</span>
+        <div>
+          <p class="text-[10px] font-bold uppercase tracking-wider text-primary">Near Zoom Limit (Wide)</p>
+          <p class="text-[10px] text-[#6b7f94] mt-0.5 leading-relaxed">Lens near physical limit. Consider moving projector back +0.5m.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  function countUp(el, to, decimals, duration) {
+    const start = performance.now();
+    const run = (now) => {
+      const p = Math.min((now - start) / duration, 1);
+      const e = 1 - Math.pow(1 - p, 3);
+      el.textContent = (to * e).toFixed(decimals);
+      if (p < 1) requestAnimationFrame(run);
+    };
+    requestAnimationFrame(run);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      countUp(document.getElementById('throw-val'), 12.50, 2, 700);
+    }, 900);
+  });
+</script>
+</body>
+</html>
