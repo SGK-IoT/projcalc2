@@ -709,78 +709,23 @@
 // PROJECTOR DATABASE
 // ============================================================
 const PROJECTORS=[
-{brand:'Barco',model:'UDX-4K40',resolution:'3840x2160',resName:'4K UHD',lumens:40000,tech:'Laser Phosphor',weight:77.5,lenses:[{name:'EN41',min:0.36,max:0.40},{name:'EN42',min:0.65,max:0.85},{name:'EN43',min:0.80,max:1.08},{name:'EN44',min:1.06,max:1.62},{name:'EN45',min:1.60,max:2.56},{name:'EN46',min:2.50,max:4.50},{name:'EN47',min:4.30,max:7.00}]},
-{brand:'Barco',model:'UDX-W40',resolution:'1920x1200',resName:'WUXGA',lumens:40000,tech:'Laser Phosphor',weight:77.5,lenses:[{name:'EN41',min:0.36,max:0.40},{name:'EN42',min:0.65,max:0.85},{name:'EN43',min:0.80,max:1.08},{name:'EN44',min:1.06,max:1.62},{name:'EN45',min:1.60,max:2.56},{name:'EN46',min:2.50,max:4.50},{name:'EN47',min:4.30,max:7.00}]},
-{brand:'Barco',model:'G62-W14',resolution:'1920x1200',resName:'WUXGA',lumens:14000,tech:'Laser Phosphor',weight:22,lenses:[{name:'EN51',min:0.36,max:0.40},{name:'EN52',min:0.75,max:0.95},{name:'EN53',min:0.95,max:1.22},{name:'EN54',min:1.22,max:1.53},{name:'EN55',min:1.52,max:2.92},{name:'EN56',min:2.90,max:5.50}]},
-{brand:'Christie',model:'CP4440-RGB',resolution:'3840x2160',resName:'4K',lumens:40000,tech:'Laser',weight:105,lenses:[{name:'0.65:1',min:0.60,max:0.72},{name:'0.80-1.02:1',min:0.80,max:1.02},{name:'1.02-1.36:1',min:1.02,max:1.36},{name:'1.20-1.77:1',min:1.20,max:1.77},{name:'1.70-2.87:1',min:1.70,max:2.87},{name:'2.80-4.60:1',min:2.80,max:4.60}]},
-{brand:'Christie',model:'M 4K25 RGB',resolution:'3840x2160',resName:'4K UHD',lumens:25000,tech:'Laser',weight:72,lenses:[{name:'0.38:1 UST',min:0.36,max:0.40},{name:'0.65-0.85:1',min:0.65,max:0.85},{name:'0.80-1.08:1',min:0.80,max:1.08},{name:'1.06-1.62:1',min:1.06,max:1.62},{name:'1.60-2.56:1',min:1.60,max:2.56},{name:'2.50-4.50:1',min:2.50,max:4.50}]},
-{brand:'Christie',model:'DHD1075-GS',resolution:'1920x1080',resName:'Full HD',lumens:10000,tech:'Laser Phosphor',weight:21.7,lenses:[{name:'0.75-0.95:1',min:0.75,max:0.95},{name:'0.95-1.22:1',min:0.95,max:1.22},{name:'1.22-1.53:1',min:1.22,max:1.53},{name:'1.52-2.89:1',min:1.52,max:2.89},{name:'2.90-5.50:1',min:2.90,max:5.50}]},
-{brand:'Christie',model:'Griffyn 4K32-RGB',resolution:'3840x2160',resName:'4K UHD',lumens:32000,tech:'Laser',weight:85,lenses:[{name:'0.38:1 UST',min:0.36,max:0.40},{name:'0.65-0.85:1',min:0.65,max:0.85},{name:'0.80-1.08:1',min:0.80,max:1.08},{name:'1.06-1.62:1',min:1.06,max:1.62},{name:'1.60-2.56:1',min:1.60,max:2.56},{name:'2.50-4.50:1',min:2.50,max:4.50}]},
-{brand:'Panasonic',model:'PT-RQ35K',resolution:'3840x2160',resName:'4K+',lumens:30500,tech:'Laser',weight:48,lenses:[{name:'ET-D3LEW200',min:0.48,max:0.55},{name:'ET-D75LE6',min:0.90,max:1.10},{name:'ET-D3LES20',min:1.06,max:1.41},{name:'ET-D3LET30',min:1.35,max:2.10},{name:'ET-D3LET40',min:2.00,max:3.14},{name:'ET-D3LEL50',min:3.00,max:5.20},{name:'ET-D3LEL100',min:5.00,max:8.60}]},
-{brand:'Panasonic',model:'PT-RZ21K',resolution:'1920x1200',resName:'WUXGA',lumens:21000,tech:'Laser',weight:46.5,lenses:[{name:'ET-D75LE5',min:0.48,max:0.55},{name:'ET-D75LE6',min:0.90,max:1.10},{name:'ET-D75LE20',min:1.06,max:1.41},{name:'ET-D75LE30',min:1.35,max:2.10},{name:'ET-D75LE40',min:2.00,max:3.14},{name:'ET-D75LE50',min:3.00,max:5.20}]},
-{brand:'Panasonic',model:'PT-MZ16K',resolution:'1920x1200',resName:'WUXGA',lumens:16000,tech:'Laser',weight:23.9,lenses:[{name:'ET-EMW200',min:0.48,max:0.55},{name:'ET-EMS600',min:0.90,max:1.10},{name:'ET-EMS650',min:1.06,max:1.41},{name:'ET-EMT700',min:1.35,max:2.10},{name:'ET-EMT750',min:2.00,max:3.14},{name:'ET-EML080',min:3.00,max:5.20}]},
-{brand:'Epson',model:'EB-PU2220B',resolution:'1920x1200',resName:'WUXGA',lumens:20000,tech:'Laser',weight:27.5,lenses:[{name:'ELPLR05',min:0.35,max:0.35},{name:'ELPLW08',min:0.65,max:0.78},{name:'ELPLU05',min:0.78,max:0.91},{name:'ELPLM15',min:0.90,max:1.23},{name:'ELPLM10',min:1.23,max:1.73},{name:'ELPLL10',min:1.73,max:2.73}]},
-{brand:'Epson',model:'EB-L30000U',resolution:'1920x1200',resName:'WUXGA',lumens:30000,tech:'Laser',weight:60,lenses:[{name:'ELPLR04',min:0.35,max:0.35},{name:'ELPLW06',min:0.65,max:0.78},{name:'ELPLU04',min:0.78,max:0.91},{name:'ELPLM09',min:0.90,max:1.23},{name:'ELPLM10',min:1.23,max:1.73},{name:'ELPLL08',min:1.73,max:2.73}]},
-{brand:'Sony',model:'SRX-R815P',resolution:'3840x2160',resName:'4K',lumens:15000,tech:'Laser',weight:50,lenses:[{name:'LKRL-A502',min:0.40,max:0.50},{name:'LKRL-A503',min:0.70,max:0.96},{name:'LKRL-Z115',min:1.00,max:1.39},{name:'LKRL-Z116',min:1.40,max:2.10},{name:'LKRL-Z117',min:2.10,max:3.90},{name:'LKRL-Z118',min:3.90,max:7.20}]},
-{brand:'Sony',model:'VPL-GTZ380',resolution:'3840x2160',resName:'4K SXRD',lumens:10000,tech:'Laser',weight:80,lenses:[{name:'VPLL-Z3009',min:0.80,max:1.02},{name:'VPLL-Z3024',min:1.27,max:2.73},{name:'VPLL-Z3032',min:2.50,max:4.50}]},
-{brand:'Digital Projection',model:'Titan Laser 37000',resolution:'1920x1200',resName:'WUXGA',lumens:37000,tech:'Laser Phosphor',weight:65,lenses:[{name:'EN41 UST',min:0.36,max:0.40},{name:'EN43',min:0.80,max:1.08},{name:'EN44',min:1.06,max:1.62},{name:'EN45',min:1.60,max:2.56},{name:'EN46',min:2.50,max:4.50},{name:'EN47',min:4.30,max:7.00}]},
-{brand:'Digital Projection',model:'M-Vision 21000',resolution:'1920x1200',resName:'WUXGA',lumens:21000,tech:'Laser Phosphor',weight:40,lenses:[{name:'0.75-0.93:1',min:0.75,max:0.93},{name:'1.16-1.49:1',min:1.16,max:1.49},{name:'1.50-2.12:1',min:1.50,max:2.12},{name:'2.12-3.18:1',min:2.12,max:3.18},{name:'3.18-4.84:1',min:3.18,max:4.84}]},
-// PT-DZ series
-{brand:'Panasonic',model:'PT-DZ570',resolution:'1920x1200',resName:'WUXGA',lumens:4500,tech:'Lamp',weight:9.6,lenses:[{name:'Standard Zoom',min:1.55,max:2.35}]},
-{brand:'Panasonic',model:'PT-DZ680',resolution:'1920x1200',resName:'WUXGA',lumens:6000,tech:'Lamp',weight:12.6,lenses:[{name:'Standard Zoom',min:1.55,max:2.35}]},
-{brand:'Panasonic',model:'PT-DZ6700',resolution:'1920x1200',resName:'WUXGA',lumens:6000,tech:'Lamp',weight:17.5,lenses:[{name:'ET-DLE085',min:0.80,max:1.00},{name:'ET-DLE150',min:1.30,max:1.90},{name:'ET-DLE250',min:2.50,max:3.50},{name:'ET-DLE350',min:3.50,max:5.40},{name:'ET-DLE450',min:4.50,max:7.50}]},
-{brand:'Panasonic',model:'PT-DZ6710',resolution:'1920x1200',resName:'WUXGA',lumens:6000,tech:'Lamp',weight:17.5,lenses:[{name:'ET-DLE085',min:0.80,max:1.00},{name:'ET-DLE150',min:1.30,max:1.90},{name:'ET-DLE250',min:2.50,max:3.50},{name:'ET-DLE350',min:3.50,max:5.40},{name:'ET-DLE450',min:4.50,max:7.50}]},
-{brand:'Panasonic',model:'PT-DZ770',resolution:'1920x1200',resName:'WUXGA',lumens:7000,tech:'Lamp',weight:17.2,lenses:[{name:'ET-DLE085',min:0.80,max:1.00},{name:'ET-DLE150',min:1.30,max:1.90},{name:'ET-DLE250',min:2.50,max:3.50},{name:'ET-DLE350',min:3.50,max:5.40},{name:'ET-DLE450',min:4.50,max:7.50}]},
-{brand:'Panasonic',model:'PT-DZ780',resolution:'1920x1200',resName:'WUXGA',lumens:7000,tech:'Lamp',weight:17.2,lenses:[{name:'ET-DLE085',min:0.80,max:1.00},{name:'ET-DLE150',min:1.30,max:1.90},{name:'ET-DLE250',min:2.50,max:3.50},{name:'ET-DLE350',min:3.50,max:5.40},{name:'ET-DLE450',min:4.50,max:7.50}]},
-{brand:'Panasonic',model:'PT-DZ870',resolution:'1920x1200',resName:'WUXGA',lumens:8500,tech:'Lamp',weight:17.2,lenses:[{name:'ET-DLE085',min:0.80,max:1.00},{name:'ET-DLE150',min:1.30,max:1.90},{name:'ET-DLE250',min:2.50,max:3.50},{name:'ET-DLE350',min:3.50,max:5.40},{name:'ET-DLE450',min:4.50,max:7.50}]},
-{brand:'Panasonic',model:'PT-DZ8700',resolution:'1920x1200',resName:'WUXGA',lumens:8500,tech:'Lamp',weight:25,lenses:[{name:'ET-DLE085',min:0.80,max:1.00},{name:'ET-DLE150',min:1.30,max:1.90},{name:'ET-DLE250',min:2.50,max:3.50},{name:'ET-DLE350',min:3.50,max:5.40},{name:'ET-DLE450',min:4.50,max:7.50}]},
-{brand:'Panasonic',model:'PT-DZ10K',resolution:'1920x1200',resName:'WUXGA',lumens:10000,tech:'Lamp',weight:27.8,lenses:[{name:'ET-D75LE5',min:0.48,max:0.55},{name:'ET-D75LE6',min:0.90,max:1.10},{name:'ET-D75LE20',min:1.06,max:1.41},{name:'ET-D75LE30',min:1.35,max:2.10},{name:'ET-D75LE40',min:2.00,max:3.14},{name:'ET-D75LE50',min:3.00,max:5.20}]},
-{brand:'Panasonic',model:'PT-DZ13K',resolution:'1920x1200',resName:'WUXGA',lumens:13000,tech:'Lamp',weight:28,lenses:[{name:'ET-D75LE5',min:0.48,max:0.55},{name:'ET-D75LE6',min:0.90,max:1.10},{name:'ET-D75LE20',min:1.06,max:1.41},{name:'ET-D75LE30',min:1.35,max:2.10},{name:'ET-D75LE40',min:2.00,max:3.14},{name:'ET-D75LE50',min:3.00,max:5.20}]},
-{brand:'Panasonic',model:'PT-DZ16K',resolution:'1920x1200',resName:'WUXGA',lumens:16000,tech:'Lamp',weight:43,lenses:[{name:'ET-D75LE5',min:0.48,max:0.55},{name:'ET-D75LE6',min:0.90,max:1.10},{name:'ET-D75LE20',min:1.06,max:1.41},{name:'ET-D75LE30',min:1.35,max:2.10},{name:'ET-D75LE40',min:2.00,max:3.14},{name:'ET-D75LE50',min:3.00,max:5.20}]},
-{brand:'Panasonic',model:'PT-DZ16K2',resolution:'1920x1200',resName:'WUXGA',lumens:16000,tech:'Lamp',weight:43,lenses:[{name:'ET-D75LE5',min:0.48,max:0.55},{name:'ET-D75LE6',min:0.90,max:1.10},{name:'ET-D75LE20',min:1.06,max:1.41},{name:'ET-D75LE30',min:1.35,max:2.10},{name:'ET-D75LE40',min:2.00,max:3.14},{name:'ET-D75LE50',min:3.00,max:5.20}]},
-{brand:'Panasonic',model:'PT-DZ21K',resolution:'1920x1200',resName:'WUXGA',lumens:20000,tech:'Lamp',weight:43,lenses:[{name:'ET-D75LE5',min:0.48,max:0.55},{name:'ET-D75LE6',min:0.90,max:1.10},{name:'ET-D75LE20',min:1.06,max:1.41},{name:'ET-D75LE30',min:1.35,max:2.10},{name:'ET-D75LE40',min:2.00,max:3.14},{name:'ET-D75LE50',min:3.00,max:5.20}]},
-{brand:'Panasonic',model:'PT-DZ21K2',resolution:'1920x1200',resName:'WUXGA',lumens:21000,tech:'Lamp',weight:43,lenses:[{name:'ET-D75LE5',min:0.48,max:0.55},{name:'ET-D75LE6',min:0.90,max:1.10},{name:'ET-D75LE20',min:1.06,max:1.41},{name:'ET-D75LE30',min:1.35,max:2.10},{name:'ET-D75LE40',min:2.00,max:3.14},{name:'ET-D75LE50',min:3.00,max:5.20}]},
-// PT-EZ series
-{brand:'Panasonic',model:'PT-EZ570',resolution:'1920x1200',resName:'WUXGA',lumens:5000,tech:'Lamp',weight:9.6,lenses:[{name:'Standard Zoom',min:1.55,max:2.35}]},
-{brand:'Panasonic',model:'PT-EZ580',resolution:'1920x1200',resName:'WUXGA',lumens:5400,tech:'Lamp',weight:12.6,lenses:[{name:'Standard Zoom',min:1.55,max:2.35}]},
-{brand:'Panasonic',model:'PT-EZ590',resolution:'1920x1200',resName:'WUXGA',lumens:5400,tech:'Lamp',weight:8.6,lenses:[{name:'Standard Zoom',min:1.55,max:2.35}]},
-{brand:'Panasonic',model:'PT-EZ770',resolution:'1920x1200',resName:'WUXGA',lumens:6500,tech:'Lamp',weight:17.2,lenses:[{name:'ET-DLE085',min:0.80,max:1.00},{name:'ET-DLE150',min:1.30,max:1.90},{name:'ET-DLE250',min:2.50,max:3.50},{name:'ET-DLE350',min:3.50,max:5.40},{name:'ET-DLE450',min:4.50,max:7.50}]},
+{brand:'Panasonic',model:'PT-EZ770ZU',resolution:'1920x1200',resName:'WUXGA',lumens:7000,tech:'Laser',weight:11.5,lenses:[{name:'LNS-W20',min:0.75,max:0.95},{name:'ET-ELW21',min:0.48,max:0.56},{name:'ET-ELT20',min:3.60,max:5.40},{name:'ET-ELT21',min:5.50,max:8.60}]},
+{brand:'Panasonic',model:'PT-DZ21K',resolution:'1920x1200',resName:'WUXGA',lumens:20000,tech:'Lamp',weight:43,lenses:[{name:'ET-D75LE20',min:1.06,max:1.41}]},
 ];
 
 // ============================================================
-// SCREEN DATABASE (AV Stumpfl MonoBlox32 — picture area, Flex White CI gain 1.02)
+// SCREEN DATABASE
 // ============================================================
 const SCREENS=[
 // 4:3
-{name:'305x229 4:3',width:3.05,height:2.29,aspectRatio:'4:3',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
-{name:'345x259 4:3',width:3.45,height:2.59,aspectRatio:'4:3',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
-{name:'366x274 4:3',width:3.66,height:2.74,aspectRatio:'4:3',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
-{name:'406x305 4:3',width:4.06,height:3.05,aspectRatio:'4:3',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
-{name:'447x335 4:3',width:4.47,height:3.35,aspectRatio:'4:3',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
-{name:'488x366 4:3',width:4.88,height:3.66,aspectRatio:'4:3',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
-{name:'528x396 4:3',width:5.28,height:3.96,aspectRatio:'4:3',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
-{name:'569x427 4:3',width:5.69,height:4.27,aspectRatio:'4:3',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
-{name:'610x457 4:3',width:6.10,height:4.57,aspectRatio:'4:3',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
-{name:'711x533 4:3',width:7.11,height:5.33,aspectRatio:'4:3',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
+{name:'400×300 4:3',width:4.00,height:3.00,aspectRatio:'4:3',gain:1.0,material:'Matte White',brand:''},
+{name:'345×264 4:3',width:3.45,height:2.64,aspectRatio:'4:3',gain:1.0,material:'Matte White',brand:''},
+{name:'325×259 4:3',width:3.25,height:2.59,aspectRatio:'4:3',gain:1.0,material:'Matte White',brand:''},
+{name:'220×170 4:3',width:2.20,height:1.70,aspectRatio:'4:3',gain:1.0,material:'Matte White',brand:''},
 // 16:9
-{name:'332x187 16:9',width:3.32,height:1.87,aspectRatio:'16:9',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
-{name:'398x224 16:9',width:3.98,height:2.24,aspectRatio:'16:9',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
-{name:'443x249 16:9',width:4.43,height:2.49,aspectRatio:'16:9',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
-{name:'487x274 16:9',width:4.87,height:2.74,aspectRatio:'16:9',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
-{name:'531x299 16:9',width:5.31,height:2.99,aspectRatio:'16:9',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
-{name:'575x323 16:9',width:5.75,height:3.23,aspectRatio:'16:9',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
-{name:'620x349 16:9',width:6.20,height:3.49,aspectRatio:'16:9',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
-{name:'664x373 16:9',width:6.64,height:3.73,aspectRatio:'16:9',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
-// 16:10
-{name:'323x202 16:10',width:3.23,height:2.02,aspectRatio:'16:10',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
-{name:'366x229 16:10',width:3.66,height:2.29,aspectRatio:'16:10',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
-{name:'388x242 16:10',width:3.88,height:2.42,aspectRatio:'16:10',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
-{name:'431x269 16:10',width:4.31,height:2.69,aspectRatio:'16:10',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
-{name:'474x296 16:10',width:4.74,height:2.96,aspectRatio:'16:10',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
-{name:'517x323 16:10',width:5.17,height:3.23,aspectRatio:'16:10',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
-{name:'560x350 16:10',width:5.60,height:3.50,aspectRatio:'16:10',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
-{name:'603x377 16:10',width:6.03,height:3.77,aspectRatio:'16:10',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
-{name:'646x404 16:10',width:6.46,height:4.04,aspectRatio:'16:10',gain:1.02,material:'Flex White CI',brand:'AV Stumpfl'},
+{name:'447×260 16:9',width:4.47,height:2.60,aspectRatio:'16:9',gain:1.0,material:'Matte White',brand:''},
+{name:'345×203 16:9',width:3.45,height:2.03,aspectRatio:'16:9',gain:1.0,material:'Flex White CI',brand:''},
+{name:'286×170 16:9',width:2.86,height:1.70,aspectRatio:'16:9',gain:1.0,material:'Matte White',brand:''},
 ];
 
 // ============================================================
