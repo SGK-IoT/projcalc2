@@ -784,19 +784,15 @@ function toggleLensOwned(p, l) {
   saveInvLens();
 }
 
-// ── Default inventory (runs once via migration flag) ──
-(function initDefaultInventory(){
-  if(localStorage.getItem('stitch-inv-defaults-v1')) return;
-  state.inventarProj=PROJECTORS.map(p=>projKey(p));
-  saveInvProj();
-  state.inventarScr=SCREENS.map(s=>scrKey(s));
-  saveInvScr();
-  state.inventarLens=PROJECTORS
-    .filter(p=>p.model!=='PT-DZ21K')
-    .flatMap(p=>{const std=p.lenses.find(l=>l.name==='ET-ELS20'||l.name==='Standard');return std?[lensKey(p,std)]:[];});
-  saveInvLens();
-  localStorage.setItem('stitch-inv-defaults-v1','1');
-})();
+// ── Default inventory (always set on load) ──
+state.inventarProj=PROJECTORS.map(p=>projKey(p));
+saveInvProj();
+state.inventarScr=SCREENS.map(s=>scrKey(s));
+saveInvScr();
+state.inventarLens=PROJECTORS
+  .filter(p=>p.model!=='PT-DZ21K')
+  .flatMap(p=>{const std=p.lenses.find(l=>l.name==='ET-ELS20'||l.name==='Standard');return std?[lensKey(p,std)]:[];});
+saveInvLens();
 
 // ============================================================
 // UTILITY
